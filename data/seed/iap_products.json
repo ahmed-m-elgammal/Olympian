@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "products": [
+    {
+      "id": "olympian_premium_unlock",
+      "type": "non_consumable",
+      "tier": "premium",
+      "defaultPriceUSD": 4.99,
+      "reward": "iap_owned_premium",
+      "platforms": {
+        "ios": "olympian.premium.unlock",
+        "android": "olympian_premium_unlock"
+      }
+    },
+    {
+      "id": "olympian_cosmetics_pack_01",
+      "type": "non_consumable",
+      "tier": "cosmetic",
+      "defaultPriceUSD": 1.99,
+      "reward": "iap_owned_cosmetics_01",
+      "platforms": {
+        "ios": "olympian.cosmetics.01",
+        "android": "olympian_cosmetics_01"
+      }
+    }
+  ]
+}

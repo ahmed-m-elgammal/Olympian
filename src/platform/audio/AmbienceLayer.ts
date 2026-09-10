@@ -71,17 +71,30 @@ export class AmbienceLayer {
       let constructed: Sound;
       try {
         constructed = new Sound(file, this.basePath, (err: unknown) => {
+          // Re-lookup by id AND verify sound identity: if play(bedId) was
+          // called again while this load was in flight, `beds.get(bedId)`
+          // now points at the NEWER entry. Playing `constructed` here
+          // would double up the audio and leak the newer Sound.
+          const entry = this.beds.get(bedId);
+          if (!entry || entry.sound !== constructed) {
+            // Stale load — this sound was replaced or stopped before it
+            // finished loading. Release it; never touch the newer entry.
+            try {
+              constructed.release();
+            } catch {
+              /* ignore */
+            }
+            resolve();
+            return;
+          }
           if (err) {
             logger.warn(
               `[ambience] failed to load bed "${bedId}" from "${file}"`,
               err,
             );
-            resolve();
-            return;
-          }
-          const entry = this.beds.get(bedId);
-          if (!entry) {
-            // Was stopped before load completed.
+            // Remove the dead entry (and release the sound) so callers
+            // can retry play(bedId) later and isPlaying() stays truthful.
+            this.beds.delete(bedId);
             try {
               constructed.release();
             } catch {

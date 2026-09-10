@@ -1,0 +1,461 @@
+{
+  "version": 1,
+  "enemies": [
+    {
+      "id": "lion_whelp",
+      "name_key": "enemies:lion_whelp.name",
+      "biome": "forest",
+      "level": 1,
+      "base_stats": {
+        "hp": 40,
+        "atk": 8,
+        "def": 3,
+        "spd": 10,
+        "xp": 18
+      },
+      "abilities": [
+        "claw",
+        "growl"
+      ],
+      "loot_table": [
+        {
+          "item_id": "potion_minor",
+          "chance": 0.3,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "lion_whelp_idle",
+      "sprite_attack": "lion_whelp_attack",
+      "sprite_hit": "lion_whelp_hit",
+      "ai_script": "aggressive"
+    },
+    {
+      "id": "nemean_lion",
+      "name_key": "enemies:nemean_lion.name",
+      "biome": "forest",
+      "level": 5,
+      "base_stats": {
+        "hp": 500,
+        "atk": 18,
+        "def": 12,
+        "spd": 9,
+        "xp": 1000
+      },
+      "abilities": [
+        "claw",
+        "roar",
+        "pounce"
+      ],
+      "loot_table": [
+        {
+          "item_id": "pelt_nemea",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "nemean_lion_idle",
+      "sprite_attack": "nemean_lion_attack",
+      "sprite_hit": "nemean_lion_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "marsh_hydra_spawn",
+      "name_key": "enemies:marsh_hydra_spawn.name",
+      "biome": "swamp",
+      "level": 6,
+      "base_stats": {
+        "hp": 55,
+        "atk": 11,
+        "def": 4,
+        "spd": 7,
+        "xp": 30
+      },
+      "abilities": [
+        "bite",
+        "spit_venom"
+      ],
+      "loot_table": [
+        {
+          "item_id": "antidote_herb",
+          "chance": 0.25,
+          "qty_min": 1,
+          "qty_max": 2
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "marsh_hydra_spawn_idle",
+      "sprite_attack": "marsh_hydra_spawn_attack",
+      "sprite_hit": "marsh_hydra_spawn_hit",
+      "ai_script": "aggressive"
+    },
+    {
+      "id": "lernaean_hydra",
+      "name_key": "enemies:lernaean_hydra.name",
+      "biome": "swamp",
+      "level": 8,
+      "base_stats": {
+        "hp": 650,
+        "atk": 22,
+        "def": 14,
+        "spd": 6,
+        "xp": 1300
+      },
+      "abilities": [
+        "bite",
+        "spit_venom",
+        "regenerate",
+        "tail_sweep"
+      ],
+      "loot_table": [
+        {
+          "item_id": "potion_greater_health",
+          "chance": 0.5,
+          "qty_min": 1,
+          "qty_max": 2
+        },
+        {
+          "item_id": "ring_garnet",
+          "chance": 0.15,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "lernaean_hydra_idle",
+      "sprite_attack": "lernaean_hydra_attack",
+      "sprite_hit": "lernaean_hydra_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "ceryneian_hind",
+      "name_key": "enemies:ceryneian_hind.name",
+      "biome": "mountain",
+      "level": 10,
+      "base_stats": {
+        "hp": 320,
+        "atk": 12,
+        "def": 8,
+        "spd": 22,
+        "xp": 900
+      },
+      "abilities": [
+        "fleet",
+        "tackle",
+        "antler_gore"
+      ],
+      "loot_table": [
+        {
+          "item_id": "speed_boots",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "ceryneian_hind_idle",
+      "sprite_attack": "ceryneian_hind_attack",
+      "sprite_hit": "ceryneian_hind_hit",
+      "ai_script": "flee_when_low"
+    },
+    {
+      "id": "erymanthian_boar",
+      "name_key": "enemies:erymanthian_boar.name",
+      "biome": "tundra",
+      "level": 12,
+      "base_stats": {
+        "hp": 700,
+        "atk": 24,
+        "def": 15,
+        "spd": 8,
+        "xp": 1500
+      },
+      "abilities": [
+        "charge",
+        "tusk_sweep",
+        "bellow"
+      ],
+      "loot_table": [
+        {
+          "item_id": "charge_horn",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "erymanthian_boar_idle",
+      "sprite_attack": "erymanthian_boar_attack",
+      "sprite_hit": "erymanthian_boar_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "augean_ox_sentinel",
+      "name_key": "enemies:augean_ox_sentinel.name",
+      "biome": "volcano",
+      "level": 14,
+      "base_stats": {
+        "hp": 120,
+        "atk": 16,
+        "def": 9,
+        "spd": 6,
+        "xp": 55
+      },
+      "abilities": [
+        "gore",
+        "stomp"
+      ],
+      "loot_table": [
+        {
+          "item_id": "whetstone_oil",
+          "chance": 0.3,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "augean_ox_sentinel_idle",
+      "sprite_attack": "augean_ox_sentinel_attack",
+      "sprite_hit": "augean_ox_sentinel_hit",
+      "ai_script": "defensive"
+    },
+    {
+      "id": "stymphalian_bird",
+      "name_key": "enemies:stymphalian_bird.name",
+      "biome": "sky",
+      "level": 16,
+      "base_stats": {
+        "hp": 760,
+        "atk": 26,
+        "def": 12,
+        "spd": 20,
+        "xp": 1700
+      },
+      "abilities": [
+        "bronze_dive",
+        "feather_volley",
+        "flock_call"
+      ],
+      "loot_table": [
+        {
+          "item_id": "winged_sandals",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "stymphalian_bird_idle",
+      "sprite_attack": "stymphalian_bird_attack",
+      "sprite_hit": "stymphalian_bird_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "minotaur",
+      "name_key": "enemies:minotaur.name",
+      "biome": "labyrinth",
+      "level": 18,
+      "base_stats": {
+        "hp": 850,
+        "atk": 30,
+        "def": 18,
+        "spd": 12,
+        "xp": 1900
+      },
+      "abilities": [
+        "axe_swing",
+        "bull_rush",
+        "roar",
+        "labyrinth_bellow"
+      ],
+      "loot_table": [
+        {
+          "item_id": "key_bronze",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        },
+        {
+          "item_id": "bronze_breastplate",
+          "chance": 0.2,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "minotaur_idle",
+      "sprite_attack": "minotaur_attack",
+      "sprite_hit": "minotaur_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "amazon_warrior",
+      "name_key": "enemies:amazon_warrior.name",
+      "biome": "desert",
+      "level": 20,
+      "base_stats": {
+        "hp": 150,
+        "atk": 22,
+        "def": 12,
+        "spd": 14,
+        "xp": 90
+      },
+      "abilities": [
+        "sword_slash",
+        "shield_bash"
+      ],
+      "loot_table": [
+        {
+          "item_id": "potion_health",
+          "chance": 0.35,
+          "qty_min": 1,
+          "qty_max": 2
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "amazon_warrior_idle",
+      "sprite_attack": "amazon_warrior_attack",
+      "sprite_hit": "amazon_warrior_hit",
+      "ai_script": "defensive"
+    },
+    {
+      "id": "hippolyta",
+      "name_key": "enemies:hippolyta.name",
+      "biome": "desert",
+      "level": 22,
+      "base_stats": {
+        "hp": 950,
+        "atk": 32,
+        "def": 20,
+        "spd": 14,
+        "xp": 2200
+      },
+      "abilities": [
+        "war_cry",
+        "amazon_strike",
+        "girdle_throw"
+      ],
+      "loot_table": [
+        {
+          "item_id": "girdle_of_war",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "hippolyta_idle",
+      "sprite_attack": "hippolyta_attack",
+      "sprite_hit": "hippolyta_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "sphinx",
+      "name_key": "enemies:sphinx.name",
+      "biome": "ruins",
+      "level": 24,
+      "base_stats": {
+        "hp": 900,
+        "atk": 28,
+        "def": 16,
+        "spd": 15,
+        "xp": 2400
+      },
+      "abilities": [
+        "riddle_bind",
+        "claw",
+        "wing_buffet"
+      ],
+      "loot_table": [
+        {
+          "item_id": "ring_of_midas",
+          "chance": 0.25,
+          "qty_min": 1,
+          "qty_max": 1
+        },
+        {
+          "item_id": "elixir_greater_mana",
+          "chance": 0.5,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "sphinx_idle",
+      "sprite_attack": "sphinx_attack",
+      "sprite_hit": "sphinx_hit",
+      "ai_script": "boss_phase_1"
+    },
+    {
+      "id": "siren",
+      "name_key": "enemies:siren.name",
+      "biome": "sea",
+      "level": 26,
+      "base_stats": {
+        "hp": 850,
+        "atk": 30,
+        "def": 14,
+        "spd": 18,
+        "xp": 2600
+      },
+      "abilities": [
+        "song_of_drowning",
+        "tidal_slam",
+        "lure"
+      ],
+      "loot_table": [
+        {
+          "item_id": "ferry_token",
+          "chance": 1,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "siren_idle",
+      "sprite_attack": "siren_attack",
+      "sprite_hit": "siren_hit",
+      "ai_script": "support"
+    },
+    {
+      "id": "cerberus",
+      "name_key": "enemies:cerberus.name",
+      "biome": "underworld",
+      "level": 30,
+      "base_stats": {
+        "hp": 1400,
+        "atk": 38,
+        "def": 24,
+        "spd": 14,
+        "xp": 3500
+      },
+      "abilities": [
+        "triple_bite",
+        "hell_howl",
+        "styx_breath"
+      ],
+      "loot_table": [
+        {
+          "item_id": "potion_greater_health",
+          "chance": 1,
+          "qty_min": 2,
+          "qty_max": 3
+        },
+        {
+          "item_id": "ring_of_midas",
+          "chance": 0.2,
+          "qty_min": 1,
+          "qty_max": 1
+        }
+      ],
+      "sprite_atlas": "atlas_enemies",
+      "sprite_idle": "cerberus_idle",
+      "sprite_attack": "cerberus_attack",
+      "sprite_hit": "cerberus_hit",
+      "ai_script": "boss_phase_1"
+    }
+  ]
+}

@@ -24,6 +24,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import {
   colors,
+  shadows,
   sizing,
   spacing,
   zIndex,
@@ -228,12 +229,11 @@ const styles = StyleSheet.create({
     borderRadius: sizing.radiusMd,
     maxWidth: '90%',
     minWidth: 200,
-    ...({
-      shadowColor: '#000',
-      shadowOpacity: 0.2,
-      shadowRadius: 6,
-      shadowOffset: { width: 0, height: 3 },
-      elevation: 4,
-    } as const),
+    // Elevation token level 4 (iOS shadow + Android elevation).
+    shadowColor: shadows[4].shadowColor,
+    shadowOpacity: shadows[4].shadowOpacity,
+    shadowRadius: shadows[4].shadowRadius,
+    shadowOffset: shadows[4].shadowOffset,
+    elevation: shadows[4].elevation,
   },
 });

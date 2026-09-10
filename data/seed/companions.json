@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "companions": {
+    "athena": {
+      "id": "athena",
+      "name_key": "companions.athena.name",
+      "role": "mage_healer",
+      "join_act": 0,
+      "join_rule": "forced",
+      "base_stats": {
+        "hp_max": 80,
+        "atk": 8,
+        "def": 6,
+        "spd": 10,
+        "int": 16,
+        "lck": 12
+      },
+      "growth_per_level": {
+        "hp_max": 7,
+        "atk": 1,
+        "def": 1,
+        "spd": 1,
+        "int": 2,
+        "lck": 1
+      },
+      "abilities": [
+        "wisdom",
+        "divine_strike",
+        "heal",
+        "olympian_light"
+      ],
+      "sprite": {
+        "atlasId": "atlas_companions",
+        "spriteId": "athena_idle"
+      }
+    },
+    "hind": {
+      "id": "hind",
+      "name_key": "companions.hind.name",
+      "role": "scout",
+      "join_act": 3,
+      "join_rule": "boss_defeat",
+      "base_stats": {
+        "hp_max": 90,
+        "atk": 14,
+        "def": 8,
+        "spd": 18,
+        "int": 4,
+        "lck": 8
+      },
+      "growth_per_level": {
+        "hp_max": 9,
+        "atk": 2,
+        "def": 1,
+        "spd": 2,
+        "int": 0,
+        "lck": 1
+      },
+      "abilities": [
+        "fleet",
+        "tackle",
+        "antler_gore",
+        "stampede"
+      ],
+      "sprite": {
+        "atlasId": "atlas_companions",
+        "spriteId": "hind_idle"
+      }
+    },
+    "hippolyta": {
+      "id": "hippolyta",
+      "name_key": "companions.hippolyta.name",
+      "role": "warrior",
+      "join_act": 8,
+      "join_rule": "boss_defeat",
+      "base_stats": {
+        "hp_max": 130,
+        "atk": 18,
+        "def": 14,
+        "spd": 8,
+        "int": 6,
+        "lck": 6
+      },
+      "growth_per_level": {
+        "hp_max": 13,
+        "atk": 3,
+        "def": 2,
+        "spd": 1,
+        "int": 0,
+        "lck": 0
+      },
+      "abilities": [
+        "war_cry",
+        "amazon_strike",
+        "girdle_throw",
+        "triumphant_cry"
+      ],
+      "sprite": {
+        "atlasId": "atlas_companions",
+        "spriteId": "hippolyta_idle"
+      }
+    },
+    "orpheus": {
+      "id": "orpheus",
+      "name_key": "companions.orpheus.name",
+      "role": "bard",
+      "join_act": 11,
+      "join_rule": "secret",
+      "base_stats": {
+        "hp_max": 70,
+        "atk": 10,
+        "def": 5,
+        "spd": 12,
+        "int": 14,
+        "lck": 16
+      },
+      "growth_per_level": {
+        "hp_max": 7,
+        "atk": 1,
+        "def": 1,
+        "spd": 1,
+        "int": 2,
+        "lck": 2
+      },
+      "abilities": [
+        "song_of_repelling",
+        "lyric_charm",
+        "dirge",
+        "underworld_waltz"
+      ],
+      "sprite": {
+        "atlasId": "atlas_companions",
+        "spriteId": "orpheus_idle"
+      }
+    }
+  }
+}

@@ -31,6 +31,7 @@ import {
   setSfxVolume,
   mmkv,
 } from '@/platform/storage/mmkv';
+import type { Locale } from '@/i18n';
 import { colors, sizing, spacing, type ColorKey } from '@/ui/theme';
 import { Button } from '@/ui/primitives/Button';
 import { Icon } from '@/ui/primitives/Icon';
@@ -66,6 +67,12 @@ function colorBlindLabelKey(mode: ColorBlindMode): string {
   }
 }
 
+/** Map a locale code to its native display name (language row subtitle). */
+const LOCALE_NAMES: Record<Locale, string> = {
+  en: 'English',
+  ar: 'العربية',
+};
+
 /** Format a volume fraction as a percent string ("0%", "25%", …). */
 function formatPercent(v: number): string {
   return `${Math.round(v * 100)}%`;
@@ -79,7 +86,11 @@ export type SettingsScreenProps = RootStackScreenProps<'Settings'>;
  */
 export function SettingsScreen(_props: SettingsScreenProps): React.JSX.Element {
   const navigation = useNavigation<RootStackScreenProps<'Settings'>['navigation']>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  /** Native display name of the active locale (falls back to the raw code). */
+  const activeLocaleName: string =
+    LOCALE_NAMES[i18n.language as Locale] ?? i18n.language ?? 'en';
 
   // ---- Audio state (initialized from MMKV / mixer) ----
   const [musicVolume, setMusicVolumeState] = React.useState<number>(() => {
@@ -227,7 +238,7 @@ export function SettingsScreen(_props: SettingsScreenProps): React.JSX.Element {
               {t('ui:settings.language')}
             </Text>
             <Text variant="caption" scale="sm" color="textMuted">
-              {t('ui:settings.language')}
+              {activeLocaleName}
             </Text>
           </View>
           <Icon name="chevron_end" size="sm" color="textMuted" />
@@ -441,19 +452,12 @@ function ToggleSwitch({
       accessibilityState={{ checked: value }}
       accessibilityLabel="reduce-motion-toggle"
       onPress={() => onChange(!value)}
-      style={[
-        styles.toggleTrack,
-        { backgroundColor: value ? colors.success : colors.border },
-      ]}
+      style={[styles.toggleTrack, value ? styles.trackOn : styles.trackOff]}
     >
       <View
         style={[
           styles.toggleKnob,
-          {
-            // Logical: align the knob to the start when off, to the end
-            // when on. In RTL, start/end flip automatically.
-            marginStart: value ? sizing.iconMd + spacing.xs : 0,
-          },
+          value ? styles.toggleKnobOn : styles.toggleKnobOff,
         ]}
       />
     </Pressable>
@@ -520,10 +524,24 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
     justifyContent: 'center',
   },
+  trackOn: {
+    backgroundColor: colors.success,
+  },
+  trackOff: {
+    backgroundColor: colors.border,
+  },
   toggleKnob: {
     width: sizing.iconMd,
     height: sizing.iconMd,
     borderRadius: sizing.iconMd / 2,
     backgroundColor: colors.text,
+  },
+  // Logical: align the knob to the start when off, to the end when on.
+  // In RTL, start/end flip automatically (marginStart is logical).
+  toggleKnobOff: {
+    marginStart: 0,
+  },
+  toggleKnobOn: {
+    marginStart: sizing.iconMd + spacing.xs,
   },
 });

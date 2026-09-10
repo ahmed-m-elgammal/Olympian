@@ -18,7 +18,6 @@
 import React from 'react';
 import {
   ActivityIndicator,
-  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -35,6 +34,7 @@ import { hapticLight } from '@/platform/haptics/haptics';
 import {
   colors,
   durations,
+  shadows,
   sizing,
   spacing,
   type ColorKey,
@@ -69,49 +69,19 @@ export interface ButtonProps {
   testID?: string;
 }
 
-/** Resolve a button height from its size. */
-function resolveHeight(size: ButtonSize): number {
-  switch (size) {
-    case 'small':
-      return sizing.buttonHeightSm;
-    case 'medium':
-      return sizing.buttonHeightMd;
-    case 'large':
-      return sizing.buttonHeightLg;
-  }
-}
-
-/** Per-variant resolved style: bg, fg, border. */
+/** Per-variant resolved foreground color (text / icon / spinner). */
 interface VariantStyle {
-  readonly background: string;
   readonly foreground: string;
-  readonly borderColor?: string;
-  readonly borderWidth?: number;
 }
 
 function resolveVariantStyle(variant: ButtonVariant): VariantStyle {
   switch (variant) {
     case 'primary':
-      return {
-        background: colors.primary,
-        foreground: colors.textInverted,
-        borderColor: colors.primaryDark,
-        borderWidth: sizing.borderWidth,
-      };
+      return { foreground: colors.textInverted };
     case 'secondary':
-      return {
-        background: colors.secondary,
-        foreground: colors.textInverted,
-        borderColor: colors.secondaryDark,
-        borderWidth: sizing.borderWidth,
-      };
+      return { foreground: colors.textInverted };
     case 'ghost':
-      return {
-        background: 'transparent',
-        foreground: colors.text,
-        borderColor: colors.border,
-        borderWidth: sizing.borderWidth,
-      };
+      return { foreground: colors.text };
   }
 }
 
@@ -165,7 +135,6 @@ export function Button({
 }: ButtonProps): React.JSX.Element {
   const scale = useSharedValue(1);
   const variantStyle = resolveVariantStyle(variant);
-  const height = resolveHeight(size);
 
   const handlePressIn = (): void => {
     scale.value = withTiming(0.97, { duration: durations.fast });
@@ -195,14 +164,9 @@ export function Button({
       onPressOut={handlePressOut}
       style={[
         styles.base,
-        {
-          height,
-          backgroundColor: variantStyle.background,
-          borderColor: variantStyle.borderColor,
-          borderWidth: variantStyle.borderWidth ?? 0,
-          borderRadius: sizing.radiusMd,
-          opacity: disabled ? 0.4 : 1,
-        },
+        styles[variant],
+        SIZE_STYLES[size],
+        disabled ? styles.disabled : null,
       ]}
     >
       <AnimatedContent scale={scale}>
@@ -237,21 +201,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    // iOS shadow + Android elevation for primary/secondary variants (ghost
-    // has transparent bg so the shadow is invisible — fine).
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
-      },
-      android: { elevation: 2 },
-      default: {} as Record<string, unknown>,
-    }),
+    borderRadius: sizing.radiusMd,
+    // iOS shadow + Android elevation from the elevation token (level 2).
+    // Ghost has a transparent bg so the shadow is invisible — fine.
+    shadowColor: shadows[2].shadowColor,
+    shadowOpacity: shadows[2].shadowOpacity,
+    shadowRadius: shadows[2].shadowRadius,
+    shadowOffset: shadows[2].shadowOffset,
+    elevation: shadows[2].elevation,
   },
-  contentWrap: {
-    flex: 0, // shrink-to-fit the inner content; outer Pressable centers it
+  primary: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primaryDark,
+    borderWidth: sizing.borderWidth,
+  },
+  secondary: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.secondaryDark,
+    borderWidth: sizing.borderWidth,
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    borderColor: colors.border,
+    borderWidth: sizing.borderWidth,
+  },
+  sizeSmall: {
+    height: sizing.buttonHeightSm,
+  },
+  sizeMedium: {
+    height: sizing.buttonHeightMd,
+  },
+  sizeLarge: {
+    height: sizing.buttonHeightLg,
+  },
+  disabled: {
+    opacity: 0.4,
   },
   innerRow: {
     flexDirection: 'row',
@@ -262,3 +246,10 @@ const styles = StyleSheet.create({
     marginEnd: spacing.xs,
   },
 });
+
+/** Per-size height styles (static — selected by {@link ButtonSize}). */
+const SIZE_STYLES: Record<ButtonSize, ViewStyle> = {
+  small: styles.sizeSmall,
+  medium: styles.sizeMedium,
+  large: styles.sizeLarge,
+};

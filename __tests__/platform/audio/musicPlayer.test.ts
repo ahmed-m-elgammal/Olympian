@@ -394,4 +394,70 @@ describe('MusicPlayer (spec 11 §3.3)', () => {
       await expect(player.destroy()).resolves.toBeUndefined();
     });
   });
+
+  // Regression tests for the fade-race dataflow bug: a pending
+  // stop(fadeOutMs) timer used to keep animating the volume to 0 and
+  // reset() the player AFTER a subsequent play() had started a new track,
+  // killing it. play()/crossfadeTo() must cancel in-flight fades first.
+  describe('fade race: stop(fade) → play()', () => {
+    it('a pending stop-fade does not kill a track started afterwards', async () => {
+      jest.useFakeTimers();
+      const player = new MusicPlayer();
+
+      await player.play({ id: 'act1', url: 'music/act1.ogg' });
+      await player.stop(200); // schedules fade-to-0 + resetInternal()
+
+      // Immediately start a new track before the fade completes.
+      await player.play({ id: 'act2', url: 'music/act2.ogg' });
+      tp().reset.mockClear();
+
+      // Let the (now-cancelled) stop-fade timer window elapse.
+      jest.advanceTimersByTime(400);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      // No reset may fire after the new track started, and the new track
+      // must still be playing.
+      expect(tp().reset).not.toHaveBeenCalled();
+      expect(player.getCurrentTrack()).toBe('act2');
+      expect(player.isPlaying).toBe(true);
+
+      jest.useRealTimers();
+    });
+
+    it('volume is not dragged to 0 by the cancelled stop-fade', async () => {
+      jest.useFakeTimers();
+      const player = new MusicPlayer();
+
+      await player.play({ id: 'act1', url: 'music/act1.ogg' });
+      await player.stop(200);
+      await player.play({ id: 'act2', url: 'music/act2.ogg' });
+
+      jest.advanceTimersByTime(400);
+      const lastVol = tp().setVolume.mock.calls.at(-1)?.[0] as number;
+      expect(lastVol).toBeGreaterThan(0.01);
+
+      jest.useRealTimers();
+    });
+
+    it('crossfadeTo() during a stop-fade keeps the new track playing', async () => {
+      jest.useFakeTimers();
+      const player = new MusicPlayer();
+
+      await player.play({ id: 'act1', url: 'music/act1.ogg' });
+      await player.stop(200);
+      await player.crossfadeTo({ id: 'act2', url: 'music/act2.ogg' }, 100);
+      tp().reset.mockClear();
+
+      jest.advanceTimersByTime(400);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(tp().reset).not.toHaveBeenCalled();
+      expect(player.getCurrentTrack()).toBe('act2');
+      expect(player.isPlaying).toBe(true);
+
+      jest.useRealTimers();
+    });
+  });
 });

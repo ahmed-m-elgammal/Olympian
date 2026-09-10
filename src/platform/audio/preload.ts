@@ -273,19 +273,24 @@ export async function preloadAudioForAct(actNumber: number): Promise<void> {
   const manifest = getActManifest(actNumber);
   logger.info(`[audio] preloading assets for Act ${actNumber}`);
 
-  // SFX: 3 instances each.
+  // SFX: 3 instances each. Preloads run in parallel — `new Sound(...)`
+  // completes asynchronously on device, so awaiting each instance serially
+  // would make an Act's preload take ~3× longer than necessary (the load
+  // callback, not JS, is the bottleneck; the pool is safe for concurrent
+  // preloads).
   if (manifest.sfx) {
-    const entries = Object.entries(manifest.sfx);
-    for (const [id, relPath] of entries) {
+    const tasks: Array<Promise<void>> = [];
+    for (const [id, relPath] of Object.entries(manifest.sfx)) {
       const file = sfxFilePath(relPath);
       for (let i = 0; i < SFX_INSTANCES_PER_SOUND; i++) {
-        try {
-          await sfxPool.preload(id, file);
-        } catch (e) {
-          logger.warn(`[audio] sfx preload failed for "${id}" (instance ${i + 1})`, e);
-        }
+        tasks.push(
+          sfxPool.preload(id, file).catch((e: unknown) => {
+            logger.warn(`[audio] sfx preload failed for "${id}"`, e);
+          }),
+        );
       }
     }
+    await Promise.all(tasks);
   }
 
   // Music: TrackPlayer streams on demand; preload() is a no-op today.

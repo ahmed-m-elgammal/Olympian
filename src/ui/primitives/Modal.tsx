@@ -62,7 +62,14 @@ export function Modal({
   testID,
 }: ModalProps): React.JSX.Element | null {
   return (
-    <Portal visible={visible} testID={testID}>
+    <Portal
+      visible={visible}
+      testID={testID}
+      // Android hardware back dismisses the modal (spec 05 §3.6). This is
+      // deliberately independent of `disableBackdropClose`, which only
+      // governs the backdrop tap target.
+      onRequestClose={onClose}
+    >
       {/* Backdrop — fills the screen, intercepts taps. */}
       <Pressable
         style={styles.backdrop}

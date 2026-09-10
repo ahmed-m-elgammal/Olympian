@@ -71,12 +71,13 @@ export async function initAudio(): Promise<void> {
     mixer.subscribe('ambience', (v) => {
       ambienceLayer.setMasterVolume(v);
     });
-    // 'ui' group: UI SFX share the SFX pool; apply same volume for now.
-    mixer.subscribe('ui', (v) => {
-      // UI sounds are routed through SfxPool — multiply with the sfx group.
-      // For now we just forward; a future routing layer can split them.
-      sfxPool.setGroupVolume(v * mixer.getGroupVolume('sfx'));
-    });
+    // NOTE: the 'ui' group is intentionally NOT wired to sfxPool here.
+    // UI sounds are played through the SFX pool, whose group volume is
+    // already driven by the 'sfx' subscriber — a second subscriber writing
+    // the same knob would create two competing writers whose result
+    // depended on notification order (dataflow bug). The 'ui' group is not
+    // user-tunable in Phase 1; when it becomes tunable, route UI sounds
+    // through a dedicated pool/multiplier instead of sharing this one.
     // 'voice' group is not wired yet (no voice player in Phase 1).
 
     // Apply the initial effective volumes (the subscriptions above only

@@ -113,6 +113,11 @@ export class MusicPlayer {
     // No-op if the same track is already playing.
     if (this.currentTrack?.id === track.id && this.playing) return;
 
+    // Cancel any in-flight fades FIRST. A pending stop(fadeOutMs) timer
+    // would otherwise keep animating the volume to 0 and reset() the
+    // player after this new track has started (fade-race dataflow bug).
+    this.cancelFades();
+
     const fadeInMs = opts?.fadeInMs ?? 0;
     const startVolume = fadeInMs > 0 ? 0 : this.effectiveVolume();
 
@@ -153,6 +158,11 @@ export class MusicPlayer {
     await this.init();
 
     if (this.currentTrack?.id === track.id && this.playing) return;
+
+    // Cancel in-flight fades — there is a single volume knob, and a
+    // pending stop()/crossfade fade fighting this one would produce a
+    // garbled volume ramp (or kill the new track via a stale reset).
+    this.cancelFades();
 
     try {
       await TrackPlayer.reset();
@@ -275,8 +285,9 @@ export class MusicPlayer {
 
   /**
    * Animate TrackPlayer volume from `from` to `to` over `ms`.
-   * Uses setInterval at ~60Hz; multiple concurrent fades are tracked
-   * so crossfadeTo→stop can interrupt cleanly.
+   * Uses setInterval at ~60Hz. Only one fade runs at a time — starting a
+   * new fade cancels the previous one (single shared volume knob), which
+   * makes crossfadeTo→stop→play interruptions deterministic.
    */
   private fade(
     from: number,
@@ -284,6 +295,9 @@ export class MusicPlayer {
     ms: number,
     onComplete?: () => void,
   ): void {
+    // One volume knob: starting a new fade cancels any in-flight one so
+    // two timers never fight over `TrackPlayer.setVolume` per frame.
+    this.cancelFades();
     const steps = Math.max(1, Math.ceil(ms / FADE_STEP_MS));
     let i = 0;
     const timer = setInterval(() => {

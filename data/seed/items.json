@@ -1,0 +1,1062 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "potion_minor",
+      "name_key": "items:potion_minor.name",
+      "description_key": "items:potion_minor.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 10,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "hp",
+          "value": 30
+        }
+      ],
+      "value_gold": 15,
+      "is_unique": 0
+    },
+    {
+      "id": "potion_health",
+      "name_key": "items:potion_health.name",
+      "description_key": "items:potion_health.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 10,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "hp",
+          "value": 60
+        }
+      ],
+      "value_gold": 30,
+      "is_unique": 0
+    },
+    {
+      "id": "potion_greater_health",
+      "name_key": "items:potion_greater_health.name",
+      "description_key": "items:potion_greater_health.description",
+      "category": "consumable",
+      "rarity": "rare",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "hp",
+          "value": 120
+        }
+      ],
+      "value_gold": 70,
+      "is_unique": 0
+    },
+    {
+      "id": "elixir_mana",
+      "name_key": "items:elixir_mana.name",
+      "description_key": "items:elixir_mana.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 10,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "mp",
+          "value": 25
+        }
+      ],
+      "value_gold": 25,
+      "is_unique": 0
+    },
+    {
+      "id": "elixir_greater_mana",
+      "name_key": "items:elixir_greater_mana.name",
+      "description_key": "items:elixir_greater_mana.description",
+      "category": "consumable",
+      "rarity": "rare",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "mp",
+          "value": 50
+        }
+      ],
+      "value_gold": 60,
+      "is_unique": 0
+    },
+    {
+      "id": "ambrosia_bite",
+      "name_key": "items:ambrosia_bite.name",
+      "description_key": "items:ambrosia_bite.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "hp",
+          "value": 40
+        },
+        {
+          "type": "restore",
+          "stat": "mp",
+          "value": 20
+        }
+      ],
+      "value_gold": 45,
+      "is_unique": 0
+    },
+    {
+      "id": "nectar_flask",
+      "name_key": "items:nectar_flask.name",
+      "description_key": "items:nectar_flask.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "restore",
+          "stat": "mp",
+          "value": 40
+        }
+      ],
+      "value_gold": 35,
+      "is_unique": 0
+    },
+    {
+      "id": "antidote_herb",
+      "name_key": "items:antidote_herb.name",
+      "description_key": "items:antidote_herb.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "resistance",
+          "element": "poison",
+          "value": 1
+        }
+      ],
+      "value_gold": 20,
+      "is_unique": 0
+    },
+    {
+      "id": "whetstone_oil",
+      "name_key": "items:whetstone_oil.name",
+      "description_key": "items:whetstone_oil.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 3
+        }
+      ],
+      "value_gold": 25,
+      "is_unique": 0
+    },
+    {
+      "id": "fireproof_salve",
+      "name_key": "items:fireproof_salve.name",
+      "description_key": "items:fireproof_salve.description",
+      "category": "consumable",
+      "rarity": "common",
+      "stack_max": 5,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "potion_red",
+      "effects": [
+        {
+          "type": "resistance",
+          "element": "fire",
+          "value": 0.5
+        }
+      ],
+      "value_gold": 30,
+      "is_unique": 0
+    },
+    {
+      "id": "club_rustic",
+      "name_key": "items:club_rustic.name",
+      "description_key": "items:club_rustic.description",
+      "category": "weapon",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 4
+        }
+      ],
+      "value_gold": 20,
+      "is_unique": 0
+    },
+    {
+      "id": "sword_bronze",
+      "name_key": "items:sword_bronze.name",
+      "description_key": "items:sword_bronze.description",
+      "category": "weapon",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 7
+        }
+      ],
+      "value_gold": 45,
+      "is_unique": 0
+    },
+    {
+      "id": "spear_hoplite",
+      "name_key": "items:spear_hoplite.name",
+      "description_key": "items:spear_hoplite.description",
+      "category": "weapon",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 9
+        },
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 1
+        }
+      ],
+      "value_gold": 80,
+      "is_unique": 0
+    },
+    {
+      "id": "sword_iron",
+      "name_key": "items:sword_iron.name",
+      "description_key": "items:sword_iron.description",
+      "category": "weapon",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 12
+        }
+      ],
+      "value_gold": 150,
+      "is_unique": 0
+    },
+    {
+      "id": "bow_cretan",
+      "name_key": "items:bow_cretan.name",
+      "description_key": "items:bow_cretan.description",
+      "category": "weapon",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 11
+        },
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 2
+        }
+      ],
+      "value_gold": 160,
+      "is_unique": 0
+    },
+    {
+      "id": "axe_labrys",
+      "name_key": "items:axe_labrys.name",
+      "description_key": "items:axe_labrys.description",
+      "category": "weapon",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 15
+        },
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": -1
+        }
+      ],
+      "value_gold": 180,
+      "is_unique": 0
+    },
+    {
+      "id": "bow_hermes",
+      "name_key": "items:bow_hermes.name",
+      "description_key": "items:bow_hermes.description",
+      "category": "weapon",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 10
+        },
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 4
+        }
+      ],
+      "value_gold": 220,
+      "is_unique": 0
+    },
+    {
+      "id": "staff_apprentice",
+      "name_key": "items:staff_apprentice.name",
+      "description_key": "items:staff_apprentice.description",
+      "category": "weapon",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 5
+        },
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 4
+        }
+      ],
+      "value_gold": 60,
+      "is_unique": 0
+    },
+    {
+      "id": "staff_athena",
+      "name_key": "items:staff_athena.name",
+      "description_key": "items:staff_athena.description",
+      "category": "weapon",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 9
+        },
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 9
+        }
+      ],
+      "value_gold": 240,
+      "is_unique": 0
+    },
+    {
+      "id": "sword_of_ares",
+      "name_key": "items:sword_of_ares.name",
+      "description_key": "items:sword_of_ares.description",
+      "category": "weapon",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "weapon",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 20
+        },
+        {
+          "type": "heal_on_hit",
+          "amount": 3,
+          "chance": 0.2
+        }
+      ],
+      "value_gold": 480,
+      "is_unique": 0
+    },
+    {
+      "id": "cap_leather",
+      "name_key": "items:cap_leather.name",
+      "description_key": "items:cap_leather.description",
+      "category": "helm",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 2
+        }
+      ],
+      "value_gold": 18,
+      "is_unique": 0
+    },
+    {
+      "id": "helm_bronze",
+      "name_key": "items:helm_bronze.name",
+      "description_key": "items:helm_bronze.description",
+      "category": "helm",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 5
+        }
+      ],
+      "value_gold": 55,
+      "is_unique": 0
+    },
+    {
+      "id": "helm_hoplite",
+      "name_key": "items:helm_hoplite.name",
+      "description_key": "items:helm_hoplite.description",
+      "category": "helm",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 8
+        },
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 10
+        }
+      ],
+      "value_gold": 140,
+      "is_unique": 0
+    },
+    {
+      "id": "corinthian_helm",
+      "name_key": "items:corinthian_helm.name",
+      "description_key": "items:corinthian_helm.description",
+      "category": "helm",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 10
+        }
+      ],
+      "value_gold": 170,
+      "is_unique": 0
+    },
+    {
+      "id": "circlet_wisdom",
+      "name_key": "items:circlet_wisdom.name",
+      "description_key": "items:circlet_wisdom.description",
+      "category": "helm",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 8
+        },
+        {
+          "type": "stat_mod",
+          "stat": "mp_max",
+          "value": 15
+        }
+      ],
+      "value_gold": 300,
+      "is_unique": 0
+    },
+    {
+      "id": "helm_hades",
+      "name_key": "items:helm_hades.name",
+      "description_key": "items:helm_hades.description",
+      "category": "helm",
+      "rarity": "legendary",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "helm",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 12
+        },
+        {
+          "type": "resistance",
+          "element": "shadow",
+          "value": 0.5
+        }
+      ],
+      "value_gold": 900,
+      "is_unique": 1
+    },
+    {
+      "id": "tunic_linen",
+      "name_key": "items:tunic_linen.name",
+      "description_key": "items:tunic_linen.description",
+      "category": "body",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 3
+        }
+      ],
+      "value_gold": 20,
+      "is_unique": 0
+    },
+    {
+      "id": "leather_cuirass",
+      "name_key": "items:leather_cuirass.name",
+      "description_key": "items:leather_cuirass.description",
+      "category": "body",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 6
+        }
+      ],
+      "value_gold": 70,
+      "is_unique": 0
+    },
+    {
+      "id": "bronze_breastplate",
+      "name_key": "items:bronze_breastplate.name",
+      "description_key": "items:bronze_breastplate.description",
+      "category": "body",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 10
+        },
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 15
+        }
+      ],
+      "value_gold": 160,
+      "is_unique": 0
+    },
+    {
+      "id": "hoplite_panoply",
+      "name_key": "items:hoplite_panoply.name",
+      "description_key": "items:hoplite_panoply.description",
+      "category": "body",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 13
+        }
+      ],
+      "value_gold": 210,
+      "is_unique": 0
+    },
+    {
+      "id": "robe_of_the_graces",
+      "name_key": "items:robe_of_the_graces.name",
+      "description_key": "items:robe_of_the_graces.description",
+      "category": "body",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 7
+        },
+        {
+          "type": "stat_mod",
+          "stat": "mp_max",
+          "value": 20
+        }
+      ],
+      "value_gold": 190,
+      "is_unique": 0
+    },
+    {
+      "id": "aegis_wrap",
+      "name_key": "items:aegis_wrap.name",
+      "description_key": "items:aegis_wrap.description",
+      "category": "body",
+      "rarity": "legendary",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "body",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 16
+        },
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 30
+        }
+      ],
+      "value_gold": 1000,
+      "is_unique": 1
+    },
+    {
+      "id": "charm_luck",
+      "name_key": "items:charm_luck.name",
+      "description_key": "items:charm_luck.description",
+      "category": "trinket",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "lck",
+          "value": 3
+        }
+      ],
+      "value_gold": 30,
+      "is_unique": 0
+    },
+    {
+      "id": "talisman_hermes",
+      "name_key": "items:talisman_hermes.name",
+      "description_key": "items:talisman_hermes.description",
+      "category": "trinket",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 5
+        }
+      ],
+      "value_gold": 150,
+      "is_unique": 0
+    },
+    {
+      "id": "amulet_apollon",
+      "name_key": "items:amulet_apollon.name",
+      "description_key": "items:amulet_apollon.description",
+      "category": "trinket",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 6
+        },
+        {
+          "type": "heal_on_hit",
+          "amount": 2,
+          "chance": 0.1
+        }
+      ],
+      "value_gold": 180,
+      "is_unique": 0
+    },
+    {
+      "id": "horn_amalthea",
+      "name_key": "items:horn_amalthea.name",
+      "description_key": "items:horn_amalthea.description",
+      "category": "trinket",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "lck",
+          "value": 10
+        },
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 20
+        }
+      ],
+      "value_gold": 350,
+      "is_unique": 0
+    },
+    {
+      "id": "thread_ariadne",
+      "name_key": "items:thread_ariadne.name",
+      "description_key": "items:thread_ariadne.description",
+      "category": "trinket",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 5
+        },
+        {
+          "type": "perk",
+          "perk": "no_fail_maze"
+        }
+      ],
+      "value_gold": 400,
+      "is_unique": 1
+    },
+    {
+      "id": "eye_of_the_owl",
+      "name_key": "items:eye_of_the_owl.name",
+      "description_key": "items:eye_of_the_owl.description",
+      "category": "trinket",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "trinket",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "int",
+          "value": 7
+        },
+        {
+          "type": "stat_mod",
+          "stat": "lck",
+          "value": 5
+        }
+      ],
+      "value_gold": 380,
+      "is_unique": 0
+    },
+    {
+      "id": "ring_copper",
+      "name_key": "items:ring_copper.name",
+      "description_key": "items:ring_copper.description",
+      "category": "ring",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "ring",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 8
+        }
+      ],
+      "value_gold": 25,
+      "is_unique": 0
+    },
+    {
+      "id": "ring_garnet",
+      "name_key": "items:ring_garnet.name",
+      "description_key": "items:ring_garnet.description",
+      "category": "ring",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "ring",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 5
+        },
+        {
+          "type": "stat_mod",
+          "stat": "hp_max",
+          "value": 10
+        }
+      ],
+      "value_gold": 130,
+      "is_unique": 0
+    },
+    {
+      "id": "ring_of_midas",
+      "name_key": "items:ring_of_midas.name",
+      "description_key": "items:ring_of_midas.description",
+      "category": "ring",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "ring",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "lck",
+          "value": 6
+        },
+        {
+          "type": "perk",
+          "perk": "gold_gain_20"
+        }
+      ],
+      "value_gold": 320,
+      "is_unique": 0
+    },
+    {
+      "id": "signet_poseidon",
+      "name_key": "items:signet_poseidon.name",
+      "description_key": "items:signet_poseidon.description",
+      "category": "ring",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "ring",
+      "effects": [
+        {
+          "type": "resistance",
+          "element": "water",
+          "value": 0.5
+        },
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 3
+        }
+      ],
+      "value_gold": 330,
+      "is_unique": 0
+    },
+    {
+      "id": "pelt_nemea",
+      "name_key": "items:pelt_nemea.name",
+      "description_key": "items:pelt_nemea.description",
+      "category": "relic",
+      "rarity": "legendary",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "def",
+          "value": 8
+        },
+        {
+          "type": "resistance",
+          "element": "physical",
+          "value": 0.25
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 1
+    },
+    {
+      "id": "charge_horn",
+      "name_key": "items:charge_horn.name",
+      "description_key": "items:charge_horn.description",
+      "category": "relic",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 10
+        },
+        {
+          "type": "perk",
+          "perk": "cleave"
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 0
+    },
+    {
+      "id": "speed_boots",
+      "name_key": "items:speed_boots.name",
+      "description_key": "items:speed_boots.description",
+      "category": "relic",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 6
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 0
+    },
+    {
+      "id": "winged_sandals",
+      "name_key": "items:winged_sandals.name",
+      "description_key": "items:winged_sandals.description",
+      "category": "relic",
+      "rarity": "legendary",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "spd",
+          "value": 10
+        },
+        {
+          "type": "perk",
+          "perk": "fast_travel"
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 1
+    },
+    {
+      "id": "girdle_of_war",
+      "name_key": "items:girdle_of_war.name",
+      "description_key": "items:girdle_of_war.description",
+      "category": "relic",
+      "rarity": "epic",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "stat_mod",
+          "stat": "atk",
+          "value": 6
+        },
+        {
+          "type": "perk",
+          "perk": "party_atk_up"
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 1
+    },
+    {
+      "id": "apple_eternal_health",
+      "name_key": "items:apple_eternal_health.name",
+      "description_key": "items:apple_eternal_health.description",
+      "category": "relic",
+      "rarity": "legendary",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "relic",
+      "effects": [
+        {
+          "type": "perk",
+          "perk": "respec_token"
+        }
+      ],
+      "value_gold": 0,
+      "is_unique": 1
+    },
+    {
+      "id": "key_bronze",
+      "name_key": "items:key_bronze.name",
+      "description_key": "items:key_bronze.description",
+      "category": "key",
+      "rarity": "common",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "key",
+      "effects": [],
+      "value_gold": 5,
+      "is_unique": 0
+    },
+    {
+      "id": "ferry_token",
+      "name_key": "items:ferry_token.name",
+      "description_key": "items:ferry_token.description",
+      "category": "key",
+      "rarity": "rare",
+      "stack_max": 1,
+      "icon_atlas": "atlas_ui_64",
+      "icon_id": "key",
+      "effects": [],
+      "value_gold": 0,
+      "is_unique": 0
+    }
+  ]
+}

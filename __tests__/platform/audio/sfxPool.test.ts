@@ -395,4 +395,52 @@ describe('SfxPool (spec 11 §3.4)', () => {
       expect(pool.isPlaying('a')).toBe(false);
     });
   });
+
+  // Regression tests for the state-leak bug on the recycle path:
+  // numberOfLoops and speed persist on a native Sound instance between
+  // plays — reusing an instance previously played with loop=true (or a
+  // custom rate) without an explicit reset made it loop forever / play at
+  // the wrong speed on the next trigger.
+  describe('play() resets per-instance state on reuse', () => {
+    it('a looped instance plays non-looped the next time', async () => {
+      const pool = new SfxPool();
+      await pool.preload('loopme', 'loopme.ogg');
+      const sound = mockSounds()[0]!;
+
+      pool.play('loopme', { loop: true });
+      expect(sound.numberOfLoops).toBe(-1);
+      sound.onEnd?.(true);
+
+      pool.play('loopme');
+      expect(sound.numberOfLoops).toBe(0);
+    });
+
+    it('a pitched instance resets to normal speed the next time', async () => {
+      const pool = new SfxPool();
+      await pool.preload('p', 'p.ogg');
+      const sound = mockSounds()[0]!;
+
+      pool.play('p', { rate: 2 });
+      expect(sound.speed).toBe(2);
+      sound.onEnd?.(true);
+
+      pool.play('p');
+      expect(sound.speed).toBe(1);
+    });
+
+    it('loop + rate can be combined and reset independently', async () => {
+      const pool = new SfxPool();
+      await pool.preload('x', 'x.ogg');
+      const sound = mockSounds()[0]!;
+
+      pool.play('x', { loop: true, rate: 0.5 });
+      expect(sound.numberOfLoops).toBe(-1);
+      expect(sound.speed).toBe(0.5);
+
+      pool.stop('x');
+      pool.play('x');
+      expect(sound.numberOfLoops).toBe(0);
+      expect(sound.speed).toBe(1);
+    });
+  });
 });

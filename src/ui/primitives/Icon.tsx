@@ -15,26 +15,18 @@
  */
 
 import React from 'react';
-import { StyleSheet, Text as RNText, View } from 'react-native';
+import {
+  StyleSheet,
+  Text as RNText,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
-import { colors, sizing, type ColorKey } from '@/ui/theme';
+import { colors, sizing, fontWeight as weightTokens, type ColorKey } from '@/ui/theme';
 
 /** Icon size token names. */
 export type IconSize = 'sm' | 'md' | 'lg' | 'xl';
-
-/** Resolve an {@link IconSize} to a numeric pixel value. */
-function resolveIconSize(size: IconSize): number {
-  switch (size) {
-    case 'sm':
-      return sizing.iconSm;
-    case 'md':
-      return sizing.iconMd;
-    case 'lg':
-      return sizing.iconLg;
-    case 'xl':
-      return sizing.iconXl;
-  }
-}
 
 /**
  * Catalog of icon names — a subset of the full catalog in spec 05 §6.2
@@ -164,7 +156,6 @@ export function Icon({
   color,
   testID,
 }: IconProps): React.JSX.Element {
-  const pixelSize = resolveIconSize(size);
   const resolvedColorKey = color ?? getIconColor(name);
   const resolvedColor = colors[resolvedColorKey];
 
@@ -175,27 +166,15 @@ export function Icon({
       testID={testID}
       style={[
         styles.container,
-        {
-          width: pixelSize,
-          height: pixelSize,
-          backgroundColor: resolvedColor,
-          borderRadius: sizing.radiusSm,
-        },
+        GLYPH_SIZE_STYLES[size],
+        { backgroundColor: resolvedColor },
       ]}
       accessibilityRole="image"
       accessibilityLabel={`icon-${name}`}
     >
       {/* Render the first letter of the icon name as the placeholder glyph.
           Sized to be readable inside the smallest (16px) icons. */}
-      <RNText
-        style={{
-          color: colors.textInverted,
-          fontSize: Math.max(8, Math.floor(pixelSize * 0.55)),
-          fontWeight: '700',
-          lineHeight: pixelSize,
-          textAlign: 'center',
-        }}
-      >
+      <RNText style={[styles.glyph, GLYPH_TEXT_STYLES[size]]}>
         {glyph}
       </RNText>
     </View>
@@ -207,4 +186,61 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  glyph: {
+    color: colors.textInverted,
+    fontWeight: weightTokens.bold,
+    textAlign: 'center',
+  },
+  sizeSm: {
+    width: sizing.iconSm,
+    height: sizing.iconSm,
+    borderRadius: sizing.radiusSm,
+  },
+  sizeMd: {
+    width: sizing.iconMd,
+    height: sizing.iconMd,
+    borderRadius: sizing.radiusSm,
+  },
+  sizeLg: {
+    width: sizing.iconLg,
+    height: sizing.iconLg,
+    borderRadius: sizing.radiusSm,
+  },
+  sizeXl: {
+    width: sizing.iconXl,
+    height: sizing.iconXl,
+    borderRadius: sizing.radiusSm,
+  },
+  glyphSm: {
+    fontSize: Math.max(8, Math.floor(sizing.iconSm * 0.55)),
+    lineHeight: sizing.iconSm,
+  },
+  glyphMd: {
+    fontSize: Math.max(8, Math.floor(sizing.iconMd * 0.55)),
+    lineHeight: sizing.iconMd,
+  },
+  glyphLg: {
+    fontSize: Math.max(8, Math.floor(sizing.iconLg * 0.55)),
+    lineHeight: sizing.iconLg,
+  },
+  glyphXl: {
+    fontSize: Math.max(8, Math.floor(sizing.iconXl * 0.55)),
+    lineHeight: sizing.iconXl,
+  },
 });
+
+/** Per-size container styles (static — selected by {@link IconSize}). */
+const GLYPH_SIZE_STYLES: Record<IconSize, ViewStyle> = {
+  sm: styles.sizeSm,
+  md: styles.sizeMd,
+  lg: styles.sizeLg,
+  xl: styles.sizeXl,
+};
+
+/** Per-size glyph text styles (static — selected by {@link IconSize}). */
+const GLYPH_TEXT_STYLES: Record<IconSize, TextStyle> = {
+  sm: styles.glyphSm,
+  md: styles.glyphMd,
+  lg: styles.glyphLg,
+  xl: styles.glyphXl,
+};

@@ -11,8 +11,10 @@
  * (spec 11 §1).
  *
  * Pool size: total simultaneous `Sound` objects across all sound ids
- * (default 32). When exceeded, finished instances are recycled to make
- * room. This bounds memory usage to ~32 × ~50KB ≈ 1.6MB per spec 11 §5.2.
+ * (default 96). When exceeded, finished instances are recycled to make
+ * room. Default sized for one Act's manifest (spec 11 §5.2: up to 30
+ * SFX × 3 instances ≈ 90, ~4.5 MB) — a smaller cap would silently strip
+ * instances away from the first-preloaded sounds as later ones load.
  */
 
 import Sound from 'react-native-sound';
@@ -88,7 +90,8 @@ export class SfxPool {
   private counter = 0;
 
   constructor(opts: SfxPoolOptions = {}) {
-    this.poolSize = opts.poolSize ?? 32;
+    // 96 = spec 11 §5.2's worst case (30 sfx × 3 instances) + headroom.
+    this.poolSize = opts.poolSize ?? 96;
     // Sound.MAIN_BUNDLE is a static string at runtime; safe to read here.
     this.basePath = opts.basePath ?? Sound.MAIN_BUNDLE;
   }
@@ -203,17 +206,26 @@ export class SfxPool {
     entry.baseVolume = clamp(options?.volume ?? 1, 0, 1);
     this.applyVolume(entry);
 
-    if (options?.loop) {
-      try {
-        entry.sound.setNumberOfLoops(-1);
-      } catch {
-        /* ignore */
-      }
+    // Reset per-instance playback state BEFORE reuse. `numberOfLoops` and
+    // `speed` persist on the native instance between plays — without an
+    // explicit reset, an instance previously played with loop=true (or a
+    // custom rate) would loop forever / play at the wrong speed on its
+    // next non-looped trigger (state-leak bug on the recycle path).
+    try {
+      entry.sound.setNumberOfLoops(options?.loop ? -1 : 0);
+    } catch {
+      /* ignore */
     }
     if (options?.rate !== undefined) {
       try {
         // setSpeed exists on both platforms' type defs; may no-op on Android.
         entry.sound.setSpeed(clamp(options.rate, 0.25, 4));
+      } catch {
+        /* ignore */
+      }
+    } else {
+      try {
+        entry.sound.setSpeed(1);
       } catch {
         /* ignore */
       }

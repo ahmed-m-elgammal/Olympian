@@ -12,6 +12,7 @@
 
 import React from 'react';
 import {
+  I18nManager,
   StyleSheet,
   TextInput,
   View,
@@ -23,9 +24,10 @@ import { useTranslation } from 'react-i18next';
 import { isRTL } from '@/i18n';
 import {
   colors,
+  fontFamily,
+  fontSize,
   sizing,
   spacing,
-  type ColorKey,
 } from '@/ui/theme';
 import { Text } from '@/ui/primitives/Text';
 
@@ -63,6 +65,9 @@ export interface InputProps {
   testID?: string;
 }
 
+/** Resolved border + text state — all styles are static, selected by state. */
+type InputStateStyleKey = 'enabled' | 'disabled';
+
 /**
  * Render a token-styled text input with optional label and error.
  *
@@ -90,15 +95,20 @@ export function Input(props: InputProps): React.JSX.Element {
 
   // Subscribe to locale changes so the input's writing direction flips.
   const { i18n } = useTranslation();
-  const rtl = isRTL(i18n.language);
 
-  const hasError = !!error;
-  // Border color resolution: error > focus > disabled > default.
-  const borderColor: ColorKey = hasError
-    ? 'danger'
+  // The layout direction is owned by I18nManager (forceRTL applies after a
+  // restart); the locale-derived check covers the window right after the
+  // user picks an RTL locale but before that restart. Either signal flips
+  // the input into RTL text mode (spec 10 §4.1–4.2).
+  const rtl = I18nManager.isRTL || isRTL(i18n.language);
+
+  const stateStyle: InputStateStyleKey = disabled ? 'disabled' : 'enabled';
+  const borderStyle = error
+    ? borderStyles.error
     : disabled
-      ? 'border'
-      : 'borderStrong';
+      ? borderStyles.disabledBorder
+      : borderStyles.default;
+  const dirStyle = rtl ? directionStyles.rtl : directionStyles.ltr;
 
   return (
     <View style={styles.container}>
@@ -123,25 +133,10 @@ export function Input(props: InputProps): React.JSX.Element {
         onSubmitEditing={onSubmitEditing}
         onFocus={onFocus}
         onBlur={onBlur}
-        style={[
-          styles.input,
-          {
-            color: disabled ? colors.textDisabled : colors.text,
-            borderColor: colors[borderColor],
-            borderWidth: sizing.borderWidth,
-            borderRadius: sizing.radiusMd,
-            paddingHorizontal: spacing.md,
-            height: sizing.buttonHeightMd,
-            opacity: disabled ? 0.6 : 1,
-            // Text-align follows layout direction (auto), but we also set
-            // `writingDirection` for the placeholder + caret positioning.
-            writingDirection: rtl ? 'rtl' : 'ltr',
-            textAlign: rtl ? 'right' : 'left',
-          },
-        ]}
+        style={[styles.input, stateStyles[stateStyle], borderStyle, dirStyle]}
       />
 
-      {hasError ? (
+      {error ? (
         <Text variant="caption" scale="sm" color="danger" style={styles.error}>
           {error}
         </Text>
@@ -159,12 +154,50 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   input: {
-    fontSize: 16,
-    fontFamily: 'System',
+    fontSize: fontSize.md,
+    fontFamily: fontFamily.system,
     padding: 0, // zero out the iOS default padding; we use paddingHorizontal
+    paddingHorizontal: spacing.md,
+    height: sizing.buttonHeightMd,
+    borderWidth: sizing.borderWidth,
+    borderRadius: sizing.radiusMd,
   },
   error: {
     marginStart: spacing.xs,
     marginTop: spacing.xs,
+  },
+});
+
+const stateStyles = StyleSheet.create({
+  enabled: {
+    color: colors.text,
+    opacity: 1,
+  },
+  disabled: {
+    color: colors.textDisabled,
+    opacity: 0.6,
+  },
+});
+
+const borderStyles = StyleSheet.create({
+  default: {
+    borderColor: colors.borderStrong,
+  },
+  error: {
+    borderColor: colors.danger,
+  },
+  disabledBorder: {
+    borderColor: colors.border,
+  },
+});
+
+const directionStyles = StyleSheet.create({
+  ltr: {
+    writingDirection: 'ltr',
+    textAlign: 'left',
+  },
+  rtl: {
+    writingDirection: 'rtl',
+    textAlign: 'right',
   },
 });

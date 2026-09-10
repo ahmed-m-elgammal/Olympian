@@ -34,6 +34,13 @@ export interface PortalProps {
   children: React.ReactNode;
   /** Optional style applied to the outer container. */
   style?: ViewProps['style'];
+  /**
+   * Android hardware-back handler. RN's `<Modal>` requires this to respond
+   * to the back button — with a no-op the modal can never be dismissed by
+   * the back gesture (spec 05 §3.6: "Closes on back button (Android)").
+   * The composed `<Modal>` wires its `onClose` here.
+   */
+  onRequestClose?: () => void;
   /** Test ID. */
   testID?: string;
 }
@@ -47,6 +54,7 @@ export function Portal({
   animated = true,
   children,
   style,
+  onRequestClose,
   testID,
 }: PortalProps): React.JSX.Element | null {
   if (!visible) {
@@ -58,12 +66,7 @@ export function Portal({
       transparent
       hardwareAccelerated
       animationType={animated ? 'fade' : 'none'}
-      // We deliberately do NOT set `onRequestClose` here — the parent
-      // `<Modal>` component is responsible for backdrop / back-button
-      // handling via `onClose`.
-      onRequestClose={() => {
-        /* handled by parent <Modal> */
-      }}
+      onRequestClose={onRequestClose ?? (() => undefined)}
       testID={testID}
     >
       <View style={[styles.fill, style]}>{children}</View>

@@ -118,7 +118,11 @@ export const V1_STATEMENTS: readonly string[] = [
     item_id         TEXT NOT NULL REFERENCES items(id),
     qty             INTEGER NOT NULL DEFAULT 1,
     acquired_at     INTEGER NOT NULL,
-    source          TEXT
+    source          TEXT,
+    -- Denormalized copy of items.is_unique, written at insert time.
+    -- SQLite partial indexes cannot contain subqueries or reference other
+    -- tables, so the uniqueness flag must live on this table itself.
+    is_unique       INTEGER NOT NULL DEFAULT 0
   )`,
   `CREATE INDEX IF NOT EXISTS idx_inventory_save ON inventory(save_id)`,
   // Partial unique index: only enforces uniqueness for items flagged
@@ -126,7 +130,7 @@ export const V1_STATEMENTS: readonly string[] = [
   // (save, item) are forbidden; stacking common items is fine.
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_inventory_unique
     ON inventory(save_id, item_id)
-    WHERE (SELECT is_unique FROM items WHERE items.id = inventory.item_id) = 1`,
+    WHERE is_unique = 1`,
 
   // -----------------------------------------------------------------------
   // 4.7 equipment — currently equipped items (hero + companions)

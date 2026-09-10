@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "acts": [
+    {
+      "act_number": 0,
+      "name_key": "acts:act_0.title",
+      "subtitle_key": "acts:act_0.subtitle",
+      "biome": "forest",
+      "boss_id": "nemean_lion",
+      "relic_item_id": "pelt_nemea",
+      "music_track": "tutorial",
+      "ambience_track": "amb_act1",
+      "levels": 5
+    },
+    {
+      "act_number": 1,
+      "name_key": "acts:act_1.title",
+      "subtitle_key": "acts:act_1.subtitle",
+      "biome": "forest",
+      "boss_id": "lion_whelp",
+      "relic_item_id": null,
+      "music_track": "act2_explore",
+      "ambience_track": "amb_act2",
+      "levels": 5
+    },
+    {
+      "act_number": 2,
+      "name_key": "acts:act_2.title",
+      "subtitle_key": "acts:act_2.subtitle",
+      "biome": "swamp",
+      "boss_id": "lernaean_hydra",
+      "relic_item_id": null,
+      "music_track": "act3_explore",
+      "ambience_track": "amb_act3",
+      "levels": 5
+    },
+    {
+      "act_number": 3,
+      "name_key": "acts:act_3.title",
+      "subtitle_key": "acts:act_3.subtitle",
+      "biome": "mountain",
+      "boss_id": "ceryneian_hind",
+      "relic_item_id": "speed_boots",
+      "music_track": "act4_explore",
+      "ambience_track": "amb_act4",
+      "levels": 5
+    },
+    {
+      "act_number": 4,
+      "name_key": "acts:act_4.title",
+      "subtitle_key": "acts:act_4.subtitle",
+      "biome": "tundra",
+      "boss_id": "erymanthian_boar",
+      "relic_item_id": "charge_horn",
+      "music_track": "act5_explore",
+      "ambience_track": "amb_act5",
+      "levels": 5
+    },
+    {
+      "act_number": 5,
+      "name_key": "acts:act_5.title",
+      "subtitle_key": "acts:act_5.subtitle",
+      "biome": "volcano",
+      "boss_id": "augean_ox_sentinel",
+      "relic_item_id": null,
+      "music_track": "act6_explore",
+      "ambience_track": "amb_act6",
+      "levels": 5
+    },
+    {
+      "act_number": 6,
+      "name_key": "acts:act_6.title",
+      "subtitle_key": "acts:act_6.subtitle",
+      "biome": "sky",
+      "boss_id": "stymphalian_bird",
+      "relic_item_id": "winged_sandals",
+      "music_track": "act7_explore",
+      "ambience_track": "amb_act7",
+      "levels": 5
+    },
+    {
+      "act_number": 7,
+      "name_key": "acts:act_7.title",
+      "subtitle_key": "acts:act_7.subtitle",
+      "biome": "labyrinth",
+      "boss_id": "minotaur",
+      "relic_item_id": "key_bronze",
+      "music_track": "act8_explore",
+      "ambience_track": "amb_act8",
+      "levels": 5
+    },
+    {
+      "act_number": 8,
+      "name_key": "acts:act_8.title",
+      "subtitle_key": "acts:act_8.subtitle",
+      "biome": "desert",
+      "boss_id": "hippolyta",
+      "relic_item_id": "girdle_of_war",
+      "music_track": "act9_explore",
+      "ambience_track": "amb_act9",
+      "levels": 5
+    },
+    {
+      "act_number": 9,
+      "name_key": "acts:act_9.title",
+      "subtitle_key": "acts:act_9.subtitle",
+      "biome": "ruins",
+      "boss_id": "sphinx",
+      "relic_item_id": null,
+      "music_track": "act10_explore",
+      "ambience_track": "amb_act10",
+      "levels": 5
+    },
+    {
+      "act_number": 10,
+      "name_key": "acts:act_10.title",
+      "subtitle_key": "acts:act_10.subtitle",
+      "biome": "sea",
+      "boss_id": "siren",
+      "relic_item_id": "ferry_token",
+      "music_track": "act11_explore",
+      "ambience_track": "amb_act11",
+      "levels": 5
+    },
+    {
+      "act_number": 11,
+      "name_key": "acts:act_11.title",
+      "subtitle_key": "acts:act_11.subtitle",
+      "biome": "underworld",
+      "boss_id": "cerberus",
+      "relic_item_id": "apple_eternal_health",
+      "music_track": "act12_explore",
+      "ambience_track": "amb_act12",
+      "levels": 5
+    }
+  ]
+}

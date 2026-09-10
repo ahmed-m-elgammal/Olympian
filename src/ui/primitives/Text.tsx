@@ -19,6 +19,7 @@
 
 import React from 'react';
 import {
+  I18nManager,
   Text as RNText,
   type TextProps as RNTextProps,
   type TextStyle,
@@ -104,11 +105,12 @@ export function Text(props: TextProps): React.JSX.Element {
     ...rest
   } = props;
 
-  // Subscribe to locale changes so the text re-renders when the user
-  // switches language. We don't actually use `t` — we only read
-  // `i18n.language` to derive the writing direction.
+  // Derive the RTL state. The layout direction is owned by I18nManager
+  // (forceRTL applies after a restart — spec 10 §4.1); the locale-derived
+  // check covers the window right after the user picks an RTL locale but
+  // before that restart. Either signal flips the writing direction.
   const { i18n } = useTranslation();
-  const rtl = isRTL(i18n.language);
+  const rtl = I18nManager.isRTL || isRTL(i18n.language);
 
   const preset = typography[variant][scale];
 
