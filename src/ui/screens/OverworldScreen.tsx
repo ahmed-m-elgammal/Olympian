@@ -1,102 +1,112 @@
 /**
- * `OverworldScreen` — the playable demo-glade world (spec 06 §2.7,
- * tasks P2.E1.T8/T9 acceptance surface).
+ * `OverworldScreen` — the Act overworld: top-down tile map of the
+ * current Act with walk-to-enter markers (spec 06 §2.7, tasks
+ * P2.E2.T3–T5 acceptance surface).
  *
  * Wiring per spec 07 (dataflow):
  *
  *   Joystick ──▶ inputStore ──▶ InputSystem ──▶ MovementSystem ──▶ ECS
- *   GameLoop ──▶ GameWorld.render() ──▶ renderBus ──▶ DrawListRenderer
+ *   MarkerSystem ──▶ interactionStore ──▶ MarkerPrompt ──▶ navigation
+ *   SceneManager ──▶ renderBus ──▶ DrawListRenderer
  *
- * The screen owns lifecycle only:
- *  - builds the scene once per mount;
- *  - feeds the camera its viewport from the canvas layout;
- *  - drives a fixed-timestep {@link GameLoop};
- *  - pauses on app background, releases input + bus on unmount.
+ * The screen owns lifecycle only (via {@link useFieldSceneManager}) and
+ * the two entry decisions: tap the canvas or the prompt while a marker
+ * is focused. Exits: → `Level` (puzzle marker), → `Hub` (portal marker
+ * or the HUD back button); the boss marker toasts until P2.E4.
  *
  * @packageDocumentation
  */
 
-import React, { useCallback, useEffect, useRef } from 'react';
-import { AppState, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useIsFocused } from '@react-navigation/native';
 
-import { useInputStore } from '@/data/stores/inputStore';
-import { useRenderBus } from '@/data/stores/renderBus';
-import { GameLoop } from '@/game/engine/loop/GameLoop';
+import { useInteractionStore } from '@/data/stores/interactionStore';
+import type { FocusedMarker } from '@/game/engine';
+import {
+  markerTargetRoute,
+  overworldSpecForAct,
+} from '@/game/scenes';
 import { DrawListRenderer } from '@/game/render/canvas/DrawListRenderer';
-import { GameCanvas, type CanvasViewport } from '@/game/render/canvas/GameCanvas';
-import { createDemoGladeScene, type DemoGladeScene } from '@/game/scenes';
+import { GameCanvas } from '@/game/render/canvas/GameCanvas';
 import { useRTL } from '@/ui/navigation/rtlHooks';
-import { Joystick } from '@/ui/composed';
+import { hapticLight, hapticSelection } from '@/platform/haptics/haptics';
+import { Joystick, MarkerPrompt, toast } from '@/ui/composed';
 import { Button } from '@/ui/primitives/Button';
 import { colors, spacing } from '@/ui/theme';
+import { useFieldSceneManager } from '@/ui/screens/useFieldSceneManager';
 import type { RootStackScreenProps } from '@/ui/navigation/RootNavigator';
 
 /** Props accepted by {@link OverworldScreen}. */
 export type OverworldScreenProps = RootStackScreenProps<'Overworld'>;
 
 /**
- * The demo-glade play screen: full-bleed Skia canvas, a back affordance
- * in the safe area, and the virtual joystick docked bottom-left.
+ * The Act 1 overworld: full-bleed Skia canvas, HUD back affordance, the
+ * virtual joystick docked bottom-left, and the enter prompt when the
+ * hero stands on a marker.
  */
-export function OverworldScreen({ navigation }: OverworldScreenProps): React.JSX.Element {
-  const { t } = useTranslation('common');
+export function OverworldScreen({ route, navigation }: OverworldScreenProps): React.JSX.Element {
+  const { t } = useTranslation('ui');
   const insets = useSafeAreaInsets();
   const rtl = useRTL();
+  const isFocused = useIsFocused();
 
-  // The scene is engine-only data — create it lazily once per mount.
-  // React state would force pointless re-renders; a ref keeps identity.
-  const sceneRef = useRef<DemoGladeScene | null>(null);
-  if (sceneRef.current === null) {
-    sceneRef.current = createDemoGladeScene();
-  }
-  const scene = sceneRef.current;
+  const spec = useMemo(() => overworldSpecForAct(route.params.act), [route.params.act]);
 
-  const loopRef = useRef<GameLoop | null>(null);
-
-  // Run the loop while mounted; on teardown stop it, drop any stuck
-  // input, and clear the mailbox so the next scene starts clean.
-  useEffect(() => {
-    const loop = new GameLoop(scene.gameWorld);
-    loopRef.current = loop;
-    loop.start();
-    return () => {
-      loop.stop();
-      loopRef.current = null;
-      useInputStore.getState().clearMove();
-      useInputStore.getState().setPointerDown(false);
-      useRenderBus.getState().reset();
-    };
-  }, [scene]);
-
-  // Pause the simulation when the app leaves the foreground; the rAF
-  // keeps running so resume is instant (GameLoop.setPaused contract).
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => {
-      loopRef.current?.setPaused(state !== 'active');
-    });
-    return () => sub.remove();
-  }, []);
-
-  // Canvas layout → camera viewport (the camera clamps follow + culling
-  // to this size; zoom comes from the scene's GAME_ZOOM).
-  const handleCanvasLayout = useCallback(
-    (viewport: CanvasViewport) => {
-      scene.camera.setViewport(viewport.width, viewport.height);
+  // Enter the focused marker: puzzle → Level, portal → Hub, boss → toast
+  // until the BossScreen exists (P2.E4).
+  const enterMarker = useCallback(
+    (marker: FocusedMarker) => {
+      hapticSelection();
+      useInteractionStore.getState().clearFocused();
+      const routeTarget = markerTargetRoute(marker.kind, marker.target);
+      switch (routeTarget.screen) {
+        case 'Level':
+          navigation.navigate('Level', { levelId: routeTarget.levelId });
+          break;
+        case 'Hub':
+          navigation.navigate('Hub');
+          break;
+        case 'Overworld':
+          navigation.navigate('Overworld', { act: route.params.act });
+          break;
+        case 'Boss':
+          toast(t('overworld.boss_locked'), { variant: 'warning' });
+          break;
+      }
     },
-    [scene],
+    [navigation, route.params.act, t],
   );
 
+  const { handleCanvasLayout, handleCanvasTap } = useFieldSceneManager({
+    spec,
+    isFocused,
+    onCanvasTap: enterMarker,
+  });
+
+  // Subtle tick when the prompt appears/disappears (you can enter now).
+  const focusedMarker = useInteractionStore((s) => s.focused);
+  useEffect(() => {
+    if (focusedMarker) {
+      hapticLight();
+    }
+  }, [focusedMarker]);
+
   const handleBack = useCallback(() => {
-    navigation.goBack();
+    navigation.navigate('Hub');
   }, [navigation]);
 
   return (
     <View style={styles.screen} testID="overworld-screen">
-      <GameCanvas onLayout={handleCanvasLayout} style={styles.canvas}>
-        <DrawListRenderer />
-      </GameCanvas>
+      {/* The canvas doubles as the tap-to-enter surface (spec 01 §3.1);
+          the joystick + HUD are absolute siblings and win their touches. */}
+      <Pressable style={StyleSheet.absoluteFill} onPress={handleCanvasTap} testID="overworld-canvas-tap">
+        <GameCanvas onLayout={handleCanvasLayout} style={styles.canvas}>
+          <DrawListRenderer />
+        </GameCanvas>
+      </Pressable>
 
       {/* HUD hugs the reading-flow start edge (flips in RTL); the game
           canvas itself is never mirrored. */}
@@ -113,7 +123,7 @@ export function OverworldScreen({ navigation }: OverworldScreenProps): React.JSX
         ]}
       >
         <Button
-          label={t('back')}
+          label={t('overworld.to_hub')}
           icon="back"
           variant="ghost"
           size="small"
@@ -121,6 +131,12 @@ export function OverworldScreen({ navigation }: OverworldScreenProps): React.JSX
           testID="overworld-back"
         />
       </View>
+
+      <MarkerPrompt
+        marker={focusedMarker}
+        onEnter={enterMarker}
+        bottomOffset={insets.bottom + PROMPT_LIFT}
+      />
 
       <View
         pointerEvents="box-none"
@@ -138,23 +154,23 @@ export function OverworldScreen({ navigation }: OverworldScreenProps): React.JSX
   );
 }
 
+/** Gap between the prompt chip and the joystick dock baseline. */
+const PROMPT_LIFT = 132;
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.bg,
   },
   canvas: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flex: 1,
   },
   hud: {
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+    gap: spacing.sm,
   },
   hudRtl: {
     flexDirection: 'row-reverse',

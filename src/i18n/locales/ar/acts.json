@@ -4,7 +4,23 @@
     "subtitle": "مقدمة — الاستدعاء",
     "description": "[AR] Athena calls you to the ruins of Nemea, where the first labor stirs. Prove your worth against the lion whose pelt no blade can pierce.",
     "objective": "[AR] Defeat the Nemean Lion and claim its pelt.",
-    "completion": "[AR] The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors."
+    "completion": "[AR] The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors.",
+    "markers": {
+      "puzzle_1": "حدّ الصدى",
+      "puzzle_2": "مدرجات الزيتون",
+      "puzzle_3": "طريق المقلع القديم",
+      "puzzle_4": "معبر الصيّاد",
+      "puzzle_5": "البئر الغارقة",
+      "puzzle_6": "خرائب الكرمة",
+      "puzzle_7": "معبر الراعي",
+      "puzzle_8": "مقام الرياح",
+      "boss": "عرين الأسد",
+      "portal": "طريق العودة إلى المعسكر",
+      "exit": "المخرج"
+    },
+    "levels": {
+      "act1_area1_room1": "بستان الاختبارات"
+    }
   },
   "act_1": {
     "title": "[AR] Hera's Wrath",

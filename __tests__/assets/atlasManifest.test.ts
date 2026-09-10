@@ -39,6 +39,7 @@ interface TilesManifest {
   height: number;
   frames: Array<{ name: string; x: number; y: number; width: number; height: number }>;
   tiles: Array<{ name: string; solid: boolean }>;
+  animations?: Record<string, ManifestAnimation>;
 }
 
 const hero = atlasHero as unknown as HeroManifest;
@@ -148,8 +149,38 @@ describe('atlas_tiles manifest', () => {
     }
   });
 
-  it('the demo-glade obstacles (stone_wall / rock / bush) are the solid set', () => {
+  it('the solid set covers props + border cliffs (walkable floor stays clear)', () => {
     const solid = tiles.tiles.filter((t) => t.solid).map((t) => t.name);
-    expect(solid.sort()).toEqual(['bush', 'rock', 'stone_wall']);
+    expect(solid.sort()).toEqual([
+      'bush',
+      'cliff_0',
+      'cliff_1',
+      'pond_0',
+      'pond_1',
+      'rock',
+      'ruin_column',
+      'stone_wall',
+      'tree_oak',
+      'tree_olive',
+      'tree_pine',
+    ]);
+  });
+
+  it('ships the 3 marker animations (shrine / brazier / portal), looping', () => {
+    const anims = tiles.animations!;
+    const frameNames = new Set(tiles.frames.map((f) => f.name));
+    for (const key of ['marker_shrine', 'marker_brazier', 'marker_portal']) {
+      const anim = anims[key];
+      expect(anim).toBeDefined();
+      expect(anim.frames.length).toBeGreaterThanOrEqual(4);
+      expect(anim.fps).toBeGreaterThan(0);
+      expect(anim.loop).toBe(true);
+      for (const frameName of anim.frames) {
+        expect(frameNames.has(frameName)).toBe(true);
+      }
+    }
+    // Shrine frames are ordered gem-pulse states (dim → bright → sparkle).
+    expect(anims.marker_shrine.frames[0]).toBe('shrine_0');
+    expect(anims.marker_shrine.frames[2]).toBe('shrine_2');
   });
 });

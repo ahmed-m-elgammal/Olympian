@@ -157,6 +157,32 @@ export interface CameraFollow {
 }
 
 // ---------------------------------------------------------------------------
+// Interaction (P2.E2.T4 — markers: puzzle / boss / portal)
+// ---------------------------------------------------------------------------
+
+/** What kind of content a marker leads to (drives UX + routing). */
+export type MarkerKind = 'puzzle' | 'boss' | 'portal';
+
+/**
+ * A world marker the player can enter by walking over it and tapping
+ * (spec 01 §3.1). Data-only: the `MarkerSystem` measures proximity and
+ * reports focus; the screen layer decides what "enter" means.
+ */
+export interface Marker {
+  /** Stable marker id, e.g. `puzzle_1` (matches the map object name). */
+  markerId: string;
+  kind: MarkerKind;
+  /** Where "enter" goes: a level id, a boss id, or `hub` / `overworld`. */
+  target: string;
+  /** i18n key for the marker's display name (resolved by the UI). */
+  labelKey: string;
+  /** Proximity radius in world px (center-to-feet). */
+  radiusPx: number;
+  /** Whether the player currently stands in range (written by `MarkerSystem`). */
+  playerInFocus: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Typed component registry
 // ---------------------------------------------------------------------------
 
@@ -179,6 +205,7 @@ export interface ComponentMap {
   animation: Animation;
   playerControlled: PlayerControlled;
   cameraFollow: CameraFollow;
+  marker: Marker;
 }
 
 /** Valid component keys. */

@@ -19,14 +19,15 @@ export type System = (world: World, dt: number) => void;
  * (AI, Puzzle, Combat, Health, Lifetime, Render-as-system) are listed
  * as comments so the eventual insertions are obvious:
  *
- *   Input → Movement → [AI] → Animation → [Puzzle] → [Combat] →
- *   [Health] → [Lifetime] → Camera → [Render]
+ *   Input → Movement → [AI] → Animation → Marker → [Puzzle] →
+ *   [Combat] → [Health] → [Lifetime] → Camera → [Render]
  */
 export const SYSTEM_ORDER = [
   'input',
   'movement',
   // 'ai',
   'animation',
+  'marker',
   // 'puzzle',
   // 'combat',
   // 'health',

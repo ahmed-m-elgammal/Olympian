@@ -12,16 +12,26 @@
  * P2.E2 (P2.E2.T1).
  */
 
-import { buildLegend } from './palette';
-import { rasterFromRows, type Raster } from './png';
+import {
+  TILE_SIZE,
+  blankTile,
+  fill,
+  mulberry32,
+  rasterFromGrid,
+  scatter,
+  setPx,
+} from './pixelGrid';
+import type { Raster } from './png';
 
-export const TILE_SIZE = 16;
+// Re-exported for existing consumers (demo map / tests).
+export { TILE_SIZE, mulberry32 };
 
 // ---------------------------------------------------------------------------
 // Legend
 // ---------------------------------------------------------------------------
 
-const LEGEND = buildLegend({
+/** Char → palette id (resolved to RGBA by `pixelGrid.rasterFromGrid`). */
+const LEGEND = {
   d: 'leaf_dark', // grass shadow
   g: 'leaf_mid', // grass base
   l: 'leaf_light', // grass light blades
@@ -39,61 +49,7 @@ const LEGEND = buildLegend({
   b: 'leaf_dark', // bush core
   B: 'leaf_mid', // bush body
   c: 'cloth_red_light', // berries
-});
-
-// ---------------------------------------------------------------------------
-// Deterministic PRNG (mulberry32) — stable bakes across runs/CI
-// ---------------------------------------------------------------------------
-
-export function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Tile painting helpers
-// ---------------------------------------------------------------------------
-
-/** Blank transparent tile. */
-const blankTile = (): string[] =>
-  Array.from({ length: TILE_SIZE }, () => '.'.repeat(TILE_SIZE));
-
-function setPx(dst: string[], x: number, y: number, ch: string): void {
-  if (y < 0 || y >= TILE_SIZE || x < 0 || x >= TILE_SIZE) return;
-  const row = dst[y].split('');
-  row[x] = ch;
-  dst[y] = row.join('');
-}
-
-function fill(dst: string[], ch: string): void {
-  for (let y = 0; y < TILE_SIZE; y++) {
-    dst[y] = ch.repeat(TILE_SIZE);
-  }
-}
-
-function scatter(
-  dst: string[],
-  rand: () => number,
-  ch: string,
-  count: number,
-  avoid: ReadonlyArray<{ x: number; y: number }> = [],
-): void {
-  let placed = 0;
-  let guard = 0;
-  while (placed < count && guard < count * 40) {
-    guard++;
-    const x = Math.floor(rand() * TILE_SIZE);
-    const y = Math.floor(rand() * TILE_SIZE);
-    if (avoid.some((p) => p.x === x && p.y === y)) continue;
-    setPx(dst, x, y, ch);
-    placed++;
-  }
-}
+} as const;
 
 // ---------------------------------------------------------------------------
 // Tile painters
@@ -225,16 +181,9 @@ const BUSH_ROWS = [
   '................',
 ];
 
-function rasterFromGrid(rows: readonly string[], _seed = 0): Raster {
-  if (rows.length !== TILE_SIZE) {
-    throw new Error(`tileArt: expected ${TILE_SIZE} rows, got ${rows.length}`);
-  }
-  for (let i = 0; i < rows.length; i++) {
-    if (rows[i].length !== TILE_SIZE) {
-      throw new Error(`tileArt: row ${i} is ${rows[i].length} chars: "${rows[i]}"`);
-    }
-  }
-  return rasterFromRows(rows, LEGEND, TILE_SIZE, TILE_SIZE);
+/** Convert a grid in this module's legend to a raster. */
+function toRaster(rows: readonly string[]): Raster {
+  return rasterFromGrid(rows, LEGEND);
 }
 
 // ---------------------------------------------------------------------------
@@ -253,17 +202,17 @@ export interface TileDef {
  */
 export function buildTileset(): TileDef[] {
   return [
-    { name: 'grass_0', solid: false, raster: rasterFromGrid(grassTile(0x1001), 0) },
-    { name: 'grass_1', solid: false, raster: rasterFromGrid(grassTile(0x1002), 0) },
-    { name: 'grass_2', solid: false, raster: rasterFromGrid(grassTile(0x1003), 0) },
-    { name: 'grass_3', solid: false, raster: rasterFromGrid(grassTile(0x1004), 0) },
-    { name: 'grass_tuft', solid: false, raster: rasterFromGrid(grassTuftTile(0x2001), 0) },
-    { name: 'grass_flowers', solid: false, raster: rasterFromGrid(grassFlowerTile(0x3001), 0) },
-    { name: 'path_0', solid: false, raster: rasterFromGrid(pathTile(0x4001, 0), 0) },
-    { name: 'path_1', solid: false, raster: rasterFromGrid(pathTile(0x4002, 1), 0) },
-    { name: 'stone_wall', solid: true, raster: rasterFromGrid(wallTile(), 0) },
-    { name: 'rock', solid: true, raster: rasterFromGrid(ROCK_ROWS, 0) },
-    { name: 'bush', solid: true, raster: rasterFromGrid(BUSH_ROWS, 0) },
+    { name: 'grass_0', solid: false, raster: toRaster(grassTile(0x1001)) },
+    { name: 'grass_1', solid: false, raster: toRaster(grassTile(0x1002)) },
+    { name: 'grass_2', solid: false, raster: toRaster(grassTile(0x1003)) },
+    { name: 'grass_3', solid: false, raster: toRaster(grassTile(0x1004)) },
+    { name: 'grass_tuft', solid: false, raster: toRaster(grassTuftTile(0x2001)) },
+    { name: 'grass_flowers', solid: false, raster: toRaster(grassFlowerTile(0x3001)) },
+    { name: 'path_0', solid: false, raster: toRaster(pathTile(0x4001, 0)) },
+    { name: 'path_1', solid: false, raster: toRaster(pathTile(0x4002, 1)) },
+    { name: 'stone_wall', solid: true, raster: toRaster(wallTile()) },
+    { name: 'rock', solid: true, raster: toRaster(ROCK_ROWS) },
+    { name: 'bush', solid: true, raster: toRaster(BUSH_ROWS) },
   ];
 }
 

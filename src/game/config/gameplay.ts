@@ -89,3 +89,33 @@ export const DEFAULT_ANIMATION_FPS = 8;
  * to switch between walk and idle animation keys without flicker.
  */
 export const MOVEMENT_IDLE_EPSILON = 1e-3;
+
+// ---------------------------------------------------------------------------
+// Markers (P2.E2.T4 — walk-over + tap-to-enter, spec 01 §3.1)
+// ---------------------------------------------------------------------------
+
+/**
+ * Proximity radius (world px, center-to-feet) at which a marker gains
+ * focus and the enter prompt appears. ~1.6 tiles: forgiving enough to
+ * walk onto the marker's tile diagonally, tight enough that adjacent
+ * clearings never double-trigger.
+ */
+export const MARKER_INTERACT_RADIUS_PX = 26;
+
+// ---------------------------------------------------------------------------
+// Scene transitions (spec 07 §5 — SceneManager audio cross-fade)
+// ---------------------------------------------------------------------------
+
+/**
+ * Music cross-fade length when a scene change swaps the track
+ * (spec 07 §5 `loadScene` step 6). Short enough to feel snappy under a
+ * screen transition, long enough to avoid a pop.
+ */
+export const SCENE_MUSIC_CROSSFADE_MS = 600;
+
+/**
+ * Ambience fade-out when leaving a scene that had a bed and the next
+ * scene has none (spec 11 §3.2). Slightly longer than music — beds are
+ * textures, not hooks.
+ */
+export const SCENE_AMBIENCE_FADE_MS = 800;

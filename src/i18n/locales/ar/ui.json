@@ -49,8 +49,15 @@
   },
   "hub": {
     "title": "بلدة المركز",
-    "subtitle": "المركز الكامل يصل في فصل لاحق.",
-    "enter_glade": "ادخل الفسحة التجريبية"
+    "subtitle": "مخيمك بين الأعمال العظيمة.",
+    "depart": "انطلق إلى البستان",
+    "actions": {
+      "temple": "المعبد",
+      "party": "الفريق",
+      "relics": "الذخائر المقدسة",
+      "settings": "الإعدادات",
+      "coming_soon": "هذا المعبد لم يُبنَ بعد."
+    }
   },
   "pause": {
     "title": "متوقف",
@@ -151,5 +158,13 @@
   "footer": {
     "made_with": "[AR] Crafted with reverence for the old myths.",
     "copyright": "© {{year}} استوديو أولمبيان"
+  },
+  "overworld": {
+    "to_hub": "المعسكر",
+    "tap_to_enter": "انقر للدخول",
+    "boss_locked": "الوحش يتحرك خلف البوابة. واجه الاختبارات أولاً."
+  },
+  "level": {
+    "exit": "مغادرة"
   }
 }

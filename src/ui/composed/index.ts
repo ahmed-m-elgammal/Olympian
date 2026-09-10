@@ -32,3 +32,6 @@ export type { StatBarProps } from './StatBar';
 export { Joystick } from './joystick/Joystick';
 export { intentFromKnob, clampKnob } from './joystick/joystickMath';
 export type { Vec2 } from './joystick/joystickMath';
+
+export { MarkerPrompt } from './MarkerPrompt';
+export type { MarkerPromptProps } from './MarkerPrompt';

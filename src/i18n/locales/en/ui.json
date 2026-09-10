@@ -49,8 +49,15 @@
   },
   "hub": {
     "title": "Hub Town",
-    "subtitle": "The full hub arrives in a later chapter.",
-    "enter_glade": "Enter the Demo Glade"
+    "subtitle": "Your camp between the great labors.",
+    "depart": "Depart into the Glade",
+    "actions": {
+      "temple": "Temple",
+      "party": "Party",
+      "relics": "Relics",
+      "settings": "Settings",
+      "coming_soon": "This shrine is not yet built."
+    }
   },
   "pause": {
     "title": "Paused",
@@ -151,5 +158,13 @@
   "footer": {
     "made_with": "Crafted with reverence for the old myths.",
     "copyright": "© {{year}} Olympian Studio"
+  },
+  "overworld": {
+    "to_hub": "Camp",
+    "tap_to_enter": "Tap to enter",
+    "boss_locked": "The beast stirs behind the gate. Face the trials first."
+  },
+  "level": {
+    "exit": "Leave"
   }
 }

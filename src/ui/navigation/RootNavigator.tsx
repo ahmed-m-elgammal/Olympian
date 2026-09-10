@@ -3,21 +3,18 @@
  *
  * Spec reference: 06 §1 (Navigator tree), task P1.E3.T11.
  *
- * Stack shape (Phase 1 — only the screens needed for the boot → settings
- * flow are mounted; Hub/Overworld are placeholders until P1.E3.T11 is
- * exercised end-to-end):
+ * Stack shape (Phase 1–2 — the screens needed for boot → hub → play;
+ * the full Onboarding/SaveSelect/Main split lands with the save
+ * system):
  *
  *   RootStack (NativeStack)
  *   ├── Boot            — splash + init decision (BootGate)
- *   ├── LanguagePicker — first-launch language picker
- *   ├── Title          — placeholder logo + menu
- *   ├── Settings       — audio / language / accessibility
- *   ├── Hub            — hub town placeholder
- *   └── Overworld      — overworld map placeholder
- *
- * Future phases will split this into OnboardingStack / SaveSelectStack /
- * MainStack as described in spec 06 §1, but for Phase 1 a single flat
- * stack is enough to verify the navigation wiring.
+ *   ├── LanguagePicker  — first-launch language picker
+ *   ├── Title           — placeholder logo + menu
+ *   ├── Settings        — audio / language / accessibility
+ *   ├── Hub             — hub town (Depart to the Act overworld)
+ *   ├── Overworld       — Act overworld map (params: act)
+ *   └── Level           — puzzle room (params: levelId)
  */
 
 import React from 'react';
@@ -35,10 +32,11 @@ import { TitleScreen } from '@/ui/screens/TitleScreen';
 import { SettingsScreen } from '@/ui/screens/SettingsScreen';
 import { HubScreen } from '@/ui/screens/HubScreen';
 import { OverworldScreen } from '@/ui/screens/OverworldScreen';
+import { LevelScreen } from '@/ui/screens/LevelScreen';
 
 /**
- * Root stack param list — the type-safe contract for every screen in the
- * Phase 1 navigation tree. Each entry is `[params | undefined]`.
+ * Root stack param list — the type-safe contract for every screen.
+ * Overworld/Level params follow spec 06 §1.
  */
 export type RootStackParamList = {
   Boot: undefined;
@@ -46,7 +44,8 @@ export type RootStackParamList = {
   Title: undefined;
   Settings: undefined;
   Hub: undefined;
-  Overworld: undefined;
+  Overworld: { act: number };
+  Level: { levelId: string };
 };
 
 /**
@@ -113,6 +112,11 @@ export function RootNavigator(): React.JSX.Element {
           name="Overworld"
           component={OverworldScreen}
           options={{ headerShown: false, title: 'Overworld' }}
+        />
+        <Stack.Screen
+          name="Level"
+          component={LevelScreen}
+          options={{ headerShown: false, title: 'Level' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

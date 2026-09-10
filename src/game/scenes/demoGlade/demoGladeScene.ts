@@ -1,69 +1,31 @@
 /**
- * Demo Glade scene — the P2.E1 acceptance world (spec 01 §3.1 shape;
- * P2.E2 replaces it with the authored Act 1 overworld).
+ * Demo Glade scene — the P2.E1 acceptance world (spec 01 §3.1 shape).
  *
- * Assembles every piece the vertical slice needs from plain data:
- *
- *   baked map JSON ──▶ TileMap ──▶ TileCollisionSpace (obstacle layer)
- *   baked hero manifest ──▶ AnimationTable
- *   atlas registry ──▶ frameSizeOf + tile producer
- *   createHero @ {@link DEMO_SPAWN_TILE} ──▶ player entity
- *   systems in spec 07 §1.5 order ──▶ GameWorld
- *
- * The scene is engine-only (no React): the screen owns the GameLoop and
- * lifecycle; jest can step the world deterministically. `src` never
- * imports from `scripts/` — the spawn tile is pinned to the generator's
- * `DEMO_SPAWN` by `__tests__/game/demoGladeScene.test.ts` instead.
+ * Since P2.E2 the shared {@link createFieldSceneBuilder} assembles every
+ * field scene; the demo glade is now a compact SceneSpec over the baked
+ * demo map (no markers, hero at the generator's kept-clear spawn). It
+ * remains the engine's integration fixture: the ECS/system/scene tests
+ * step it deterministically, and `src` never imports from `scripts/` —
+ * the spawn tile is pinned to the generator's `DEMO_SPAWN` by
+ * `__tests__/game/demoGladeScene.test.ts` instead.
  *
  * @packageDocumentation
  */
 
-import { inputStoreSource } from '@/data/stores/inputStore';
-import { useRenderBus } from '@/data/stores/renderBus';
-import { GAME_ZOOM } from '@/game/config/gameplay';
-import { LAYERS } from '@/game/config/layers';
-import { createHero } from '@/game/entities';
-import { GameWorld } from '@/game/engine/GameWorld';
+import type { InputSource } from '@/game/engine';
 import type { FramePublisher } from '@/game/engine/GameWorld';
-import { AnimationTable } from '@/game/engine/animation/AnimationTable';
-import {
-  createTileCommandProducer,
-  type TileLayerSpec,
-} from '@/game/engine/render/tileCommands';
-import { TileCollisionSpace } from '@/game/engine/systems/collision';
-import {
-  createAnimationSystem,
-  createCameraSystem,
-  createInputSystem,
-  createMovementSystem,
-  type InputSource,
-  type System,
-} from '@/game/engine';
+import type { MarkerFocusSink, SceneHandle } from '@/game/engine';
+import { createFieldSceneBuilder } from '@/game/scenes/fieldScene';
+import { resolveTilemap, MAP_IDS } from '@/game/scenes/mapAssets';
 import type { EntityId } from '@/game/engine/ecs/World';
 import type { World } from '@/game/engine/ecs/World';
-import {
-  ATLAS_IDS,
-  animationManifestOf,
-  frameSizeOf,
-  tileEntries,
-} from '@/game/render/atlas/atlasRegistry';
+import type { AnimationTable } from '@/game/engine/animation/AnimationTable';
+import { TileMap } from '@/game/render/tiles/TileMap';
 import { Camera } from '@/game/render/canvas/Camera';
-import { TileMap, type TileMapData } from '@/game/render/tiles/TileMap';
-
-import demoMapJson from '../../../../assets/tilemaps/demo_glade.json';
 
 // ---------------------------------------------------------------------------
 // Scene constants (all ids/layers tokenized — nothing inline)
 // ---------------------------------------------------------------------------
-
-/** Layer the collision space treats as solid. */
-const OBSTACLE_LAYER = 'obstacles';
-
-/** Map layers drawn as tiles, back → front by z-index. */
-const TILE_LAYER_SPECS: readonly TileLayerSpec[] = [
-  { name: 'ground', zIndex: LAYERS.ground },
-  { name: OBSTACLE_LAYER, zIndex: LAYERS.props },
-];
 
 /**
  * Hero spawn in tile coordinates (feet land on the tile's bottom edge).
@@ -71,10 +33,6 @@ const TILE_LAYER_SPECS: readonly TileLayerSpec[] = [
  * generator keeps a 3-tile clear radius around it) — pinned by test.
  */
 export const DEMO_SPAWN_TILE = { tx: 14, ty: 20 } as const;
-
-// ---------------------------------------------------------------------------
-// Scene assembly
-// ---------------------------------------------------------------------------
 
 /** Options for {@link createDemoGladeScene}. */
 export interface DemoGladeSceneOptions {
@@ -88,12 +46,17 @@ export interface DemoGladeSceneOptions {
    * inject a stub.
    */
   readonly inputSource?: InputSource;
+  /**
+   * Marker focus sink. The demo glade has no markers, but the sink is
+   * required by the shared builder; tests inject a spy if needed.
+   */
+  readonly focusSink?: MarkerFocusSink;
 }
 
 /** A assembled demo-glade world plus its key handles. */
 export interface DemoGladeScene {
   /** The ECS world + camera + render buffer the GameLoop drives. */
-  readonly gameWorld: GameWorld;
+  readonly gameWorld: SceneHandle['gameWorld'];
   /** The ECS store (`gameWorld.ecs` — for assertions / extras). */
   readonly ecs: World;
   /** Hero entity id. */
@@ -106,74 +69,54 @@ export interface DemoGladeScene {
   readonly animationTable: AnimationTable;
 }
 
-/** Render-bus adapter used when the caller supplies no publisher. */
-const renderBusPublish: FramePublisher = (commands, camera) => {
-  useRenderBus.getState().publish(commands, camera);
+/** No-op focus sink (the demo map has no markers to focus). */
+const noopFocusSink: MarkerFocusSink = {
+  focus: () => undefined,
+  blur: () => undefined,
 };
 
 /**
- * Build the demo-glade scene. Throws loudly on contract violations
- * (missing manifest, missing obstacle layer) — a scene that cannot be
- * trusted at boot must not reach the first frame.
+ * Build the demo-glade scene via the shared field builder. Throws
+ * loudly on contract violations (missing manifest, missing obstacle
+ * layer) — a scene that cannot be trusted at boot must not reach the
+ * first frame.
  */
 export function createDemoGladeScene(
   opts: DemoGladeSceneOptions = {},
 ): DemoGladeScene {
-  const publish = opts.publish ?? renderBusPublish;
-  const inputSource = opts.inputSource ?? inputStoreSource;
-
-  // ---- Map + collision --------------------------------------------------
-  const map = new TileMap(demoMapJson as TileMapData);
-  const firstgid = map.tilesets[0]?.firstgid ?? 1;
-  // Tileset-local id = manifest order; global id = firstgid + local id.
-  const solidGids = new Set<number>(
-    tileEntries(ATLAS_IDS.tiles)
-      .map((entry, index) => (entry.solid ? firstgid + index : -1))
-      .filter((gid) => gid >= 0),
-  );
-  const collision = new TileCollisionSpace(map, solidGids, OBSTACLE_LAYER);
-
-  // ---- Animations -------------------------------------------------------
-  const animationTable = new AnimationTable(
-    animationManifestOf(ATLAS_IDS.hero),
-  );
-
-  // ---- Camera -----------------------------------------------------------
-  const camera = new Camera();
-  camera.setZoom(GAME_ZOOM);
-
-  // ---- Systems (spec 07 §1.5 order) -------------------------------------
-  const systems: System[] = [
-    createInputSystem(inputSource),
-    createMovementSystem(collision, animationTable),
-    createAnimationSystem(animationTable),
-    createCameraSystem(camera, {
-      width: map.getPixelWidth(),
-      height: map.getPixelHeight(),
-    }),
-  ];
-
-  // ---- World (owns the ECS) + hero ---------------------------------------
-  const gameWorld = new GameWorld({
-    collision,
-    animations: animationTable,
-    frameSizeOf,
-    publish,
-    tileProducer: createTileCommandProducer(map, camera, TILE_LAYER_SPECS),
-    systems,
-    camera,
-  });
-
-  const ecs = gameWorld.ecs;
-  const tileW = map.getTileWidth();
-  const tileH = map.getTileHeight();
-  // Feet anchor: centered on the spawn tile's floor edge.
-  const heroId = createHero(ecs, {
+  // Tile size comes from the baked map — no literal in scene code.
+  const { tilewidth: tileW, tileheight: tileH } = resolveTilemap(MAP_IDS.demoGlade);
+  const spawn = {
     x: (DEMO_SPAWN_TILE.tx + 0.5) * tileW,
     y: (DEMO_SPAWN_TILE.ty + 1) * tileH,
+  };
+  const spec = {
+    type: 'overworld' as const,
+    id: MAP_IDS.demoGlade,
+    tilemap: MAP_IDS.demoGlade,
+    entities: [{ kind: 'hero' as const, x: spawn.x, y: spawn.y }],
+    music: 'tutorial',
+    playerSpawn: spawn,
+  };
+
+  const buildScene = createFieldSceneBuilder({
+    resolveTilemap,
+    focusSink: opts.focusSink ?? noopFocusSink,
+    ...(opts.inputSource ? { inputSource: opts.inputSource } : {}),
+    ...(opts.publish ? { publish: opts.publish } : {}),
   });
 
-  return { gameWorld, ecs, heroId, map, camera, animationTable };
+  const handle = buildScene(spec);
+  const heroId = handle.entityIds[0];
+
+  return {
+    gameWorld: handle.gameWorld,
+    ecs: handle.gameWorld.ecs,
+    heroId,
+    map: handle.map as TileMap,
+    camera: handle.camera,
+    animationTable: handle.animations as AnimationTable,
+  };
 }
 
 export default createDemoGladeScene;

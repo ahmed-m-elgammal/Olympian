@@ -65,6 +65,45 @@ export interface TileLayerData {
   type?: string;
 }
 
+/** One property of a Tiled object (canonical `{name, type, value}` form). */
+export interface TiledObjectProperty {
+  name: string;
+  type?: string;
+  value: string | number | boolean | unknown;
+}
+
+/** An object from an `objectgroup` layer (markers, spawns, triggers). */
+export interface MapObject {
+  /** Object name, e.g. `puzzle_1` / `spawn`. */
+  name: string;
+  /** Class tag, e.g. `marker` / `spawn`. */
+  type: string;
+  /** Top-left X in world px (Tiled rect semantics). */
+  x: number;
+  /** Top-left Y in world px. */
+  y: number;
+  width: number;
+  height: number;
+  /** Properties flattened into a plain record. */
+  properties: Readonly<Record<string, string | number | boolean>>;
+}
+
+/** An `objectgroup` layer payload. */
+export interface ObjectGroupData {
+  name: string;
+  visible?: boolean;
+  type?: string;
+  objects?: Array<{
+    name?: string;
+    type?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    properties?: TiledObjectProperty[];
+  }>;
+}
+
 /** Root shape of a Tiled JSON export. */
 export interface TileMapData {
   /** Map width in tiles. */
@@ -76,7 +115,7 @@ export interface TileMapData {
   /** Per-tile height in pixels. */
   tileheight: number;
   /** Layers (rendered bottom-to-top in declaration order). */
-  layers: TileLayerData[];
+  layers: Array<TileLayerData | ObjectGroupData>;
   /** Tilesets referenced by the map. */
   tilesets: TileSetRef[];
   /** Optional map name. */
@@ -140,6 +179,13 @@ export interface Layer {
   tileIndex: Map<number, Tile>;
 }
 
+/** A parsed objectgroup: named metadata layer (no render content). */
+export interface ObjectLayer {
+  name: string;
+  visible: boolean;
+  objects: MapObject[];
+}
+
 /**
  * Tiled map parser. Pure data — no Skia dependency.
  *
@@ -156,8 +202,10 @@ export interface Layer {
 export class TileMap {
   /** Raw parsed data. */
   public readonly data: TileMapData;
-  /** Parsed layers in declaration order. */
+  /** Parsed tile layers in declaration order (objectgroups excluded). */
   public readonly layers: Layer[];
+  /** Parsed objectgroup layers in declaration order. */
+  public readonly objectLayers: ObjectLayer[];
   /** Tilesets in ascending firstgid order. */
   public readonly tilesets: TileSetRef[];
 
@@ -169,7 +217,12 @@ export class TileMap {
     }
     this.data = parsed;
     this.tilesets = (parsed.tilesets ?? []).slice().sort((a, b) => a.firstgid - b.firstgid);
-    this.layers = (parsed.layers ?? []).map((l) => this.parseLayer(l));
+    this.layers = (parsed.layers ?? [])
+      .filter((l): l is TileLayerData => l.type !== 'objectgroup')
+      .map((l) => this.parseLayer(l));
+    this.objectLayers = (parsed.layers ?? [])
+      .filter((l): l is ObjectGroupData => l.type === 'objectgroup')
+      .map((g) => this.parseObjectGroup(g));
   }
 
   /** Map width in tiles. */
@@ -207,6 +260,14 @@ export class TileMap {
    */
   getLayer(name: string): Layer | null {
     return this.layers.find((l) => l.name === name) ?? null;
+  }
+
+  /**
+   * All objects of one objectgroup layer. Returns `[]` when the layer
+   * is missing so callers can degrade gracefully (warned at parse).
+   */
+  getObjects(groupName: string): MapObject[] {
+    return this.objectLayers.find((g) => g.name === groupName)?.objects ?? [];
   }
 
   /**
@@ -303,6 +364,39 @@ export class TileMap {
     }
 
     return { name: layer.name, width, height, visible, tiles, tileIndex };
+  }
+
+  /**
+   * Parse one `objectgroup` layer into plain {@link MapObject}s.
+   * Properties arrive in Tiled's canonical `[{name, type, value}]` form
+   * and are flattened into a record (last one wins). Malformed objects
+   * are skipped with a warning — authoring metadata must never crash
+   * the boot path.
+   */
+  private parseObjectGroup(group: ObjectGroupData): ObjectLayer {
+    const objects: MapObject[] = [];
+    for (const obj of group.objects ?? []) {
+      if (typeof obj.x !== 'number' || typeof obj.y !== 'number') {
+        logger.warn(`TileMap: objectgroup "${group.name}" has an object without x/y — skipped`);
+        continue;
+      }
+      const properties: Record<string, string | number | boolean> = {};
+      for (const prop of obj.properties ?? []) {
+        if (prop && typeof prop.name === 'string') {
+          properties[prop.name] = prop.value as string | number | boolean;
+        }
+      }
+      objects.push({
+        name: obj.name ?? '',
+        type: obj.type ?? '',
+        x: obj.x,
+        y: obj.y,
+        width: obj.width ?? 0,
+        height: obj.height ?? 0,
+        properties,
+      });
+    }
+    return { name: group.name, visible: group.visible !== false, objects };
   }
 
   /**

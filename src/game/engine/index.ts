@@ -39,6 +39,27 @@ export {
   type WorldBounds,
 } from './systems/collision';
 export { SYSTEM_ORDER, type System, type SystemName } from './systems';
+export {
+  createMarkerSystem,
+  type FocusedMarker,
+  type MarkerFocusSink,
+} from './systems/MarkerSystem';
+export {
+  SceneManager,
+  type SceneManagerOptions,
+} from './scene/SceneManager';
+export type {
+  SceneSpec,
+  SceneType,
+  SceneHandle,
+  SceneBuilder,
+  SceneAudioBridge,
+  AmbientLight,
+  EntitySpec,
+  HeroEntitySpec,
+  MarkerEntitySpec,
+  MarkerSpriteSpec,
+} from './scene/types';
 export { produceSpriteCommands, type FrameSizeLookup } from './render/spriteCommands';
 export {
   createTileCommandProducer,

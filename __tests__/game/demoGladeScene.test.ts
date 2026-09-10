@@ -73,12 +73,15 @@ describe('demo-glade scene assembly', () => {
     expect(scene.map.getLayer('obstacles')).not.toBeNull();
   });
 
-  it('seeds the animation table from the hero manifest', () => {
+  it('seeds the animation table from the hero + tiles manifests', () => {
     const { scene } = makeScene({ x: 0, y: 0 });
-    // 11 animations per the bake contract.
-    expect(scene.animationTable.size).toBe(11);
+    // 11 hero animations + 3 tileset marker loops per the bake contract.
+    expect(scene.animationTable.size).toBe(14);
     expect(scene.animationTable.has('hero_walk_left')).toBe(true);
     expect(scene.animationTable.has('hero_death_down')).toBe(true);
+    expect(scene.animationTable.has('marker_shrine')).toBe(true);
+    expect(scene.animationTable.has('marker_brazier')).toBe(true);
+    expect(scene.animationTable.has('marker_portal')).toBe(true);
   });
 
   it('treats exactly the manifest-solid tiles as collision', () => {
@@ -86,7 +89,19 @@ describe('demo-glade scene assembly', () => {
     const solidNames = (atlasTiles as { tiles: Array<{ name: string; solid: boolean }> })
       .tiles.filter((t) => t.solid)
       .map((t) => t.name);
-    expect(solidNames.sort()).toEqual(['bush', 'rock', 'stone_wall']);
+    expect(solidNames.sort()).toEqual([
+      'bush',
+      'cliff_0',
+      'cliff_1',
+      'pond_0',
+      'pond_1',
+      'rock',
+      'ruin_column',
+      'stone_wall',
+      'tree_oak',
+      'tree_olive',
+      'tree_pine',
+    ]);
     // The obstacle layer contains only solid tiles (or nothing).
     const layer = scene.map.getLayer('obstacles')!;
     for (const tile of layer.tiles) {

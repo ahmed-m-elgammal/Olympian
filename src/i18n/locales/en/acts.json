@@ -4,7 +4,23 @@
     "subtitle": "Prologue — The Summoning",
     "description": "Athena calls you to the ruins of Nemea, where the first labor stirs. Prove your worth against the lion whose pelt no blade can pierce.",
     "objective": "Defeat the Nemean Lion and claim its pelt.",
-    "completion": "The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors."
+    "completion": "The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors.",
+    "markers": {
+      "puzzle_1": "Ridge of Echoes",
+      "puzzle_2": "Olive Terraces",
+      "puzzle_3": "Old Quarry Road",
+      "puzzle_4": "Hunter's Crossing",
+      "puzzle_5": "The Sunken Well",
+      "puzzle_6": "Vineyard Ruins",
+      "puzzle_7": "Shepherd's Ford",
+      "puzzle_8": "Shrine of the Winds",
+      "boss": "The Lion's Den",
+      "portal": "Road Back to Camp",
+      "exit": "Way Out"
+    },
+    "levels": {
+      "act1_area1_room1": "Glade of Trials"
+    }
   },
   "act_1": {
     "title": "Hera's Wrath",
