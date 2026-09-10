@@ -1,0 +1,46 @@
+# Codeowners definition for Olympian project
+# Maps repository paths to owning agent roles per spec/tasks.md §1.3
+
+# Default project lead
+* @lead
+
+# Platform Engineer
+/src/platform/ @plat
+/android/ @plat
+/ios/ @plat
+/src/data/persistence/ @plat
+
+# Game Systems Engineer
+/src/game/engine/ @game
+/src/game/systems/ @game
+/src/domain/ @game
+
+# Graphics Engineer
+/src/game/render/ @gfx
+
+# UI Engineer
+/src/ui/ @ui
+/src/game/ui/ @ui
+
+# i18n Engineer
+/src/i18n/ @i18n
+/src/platform/locale/ @i18n
+
+# Audio Engineer
+/src/platform/audio/ @audio
+
+# Content Author
+/data/ @content
+
+# Pixel Artist
+/assets/ @art
+/assets-raw/ @art
+
+# QA / Test Engineer
+/__tests__/ @qa
+
+# Release / DevOps / Architect
+/.github/ @release
+/scripts/ @arch
+/package.json @arch
+/tsconfig.json @arch

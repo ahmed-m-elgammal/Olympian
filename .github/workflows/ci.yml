@@ -1,0 +1,54 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --ci
+      - run: npm run prebuild
+      - run: npm run content:validate
+      - run: npm run i18n:coverage
+      - run: npm run perf:check
+
+  build-android:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - run: npm ci
+      - run: npm run build:android:release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: olympian-android
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+  build-ios:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: cd ios && pod install
+      - run: npm run build:ios:release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: olympian-ios
+          path: ios/build/Olympian.ipa
