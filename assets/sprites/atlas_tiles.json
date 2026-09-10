@@ -1,0 +1,132 @@
+{
+  "atlas": "atlas_tiles",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "width": 256,
+  "height": 256,
+  "frames": [
+    {
+      "name": "grass_0",
+      "x": 0,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "grass_1",
+      "x": 16,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "grass_2",
+      "x": 32,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "grass_3",
+      "x": 48,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "grass_tuft",
+      "x": 64,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "grass_flowers",
+      "x": 80,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "path_0",
+      "x": 96,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "path_1",
+      "x": 112,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "stone_wall",
+      "x": 128,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "rock",
+      "x": 144,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    },
+    {
+      "name": "bush",
+      "x": 160,
+      "y": 0,
+      "width": 16,
+      "height": 16
+    }
+  ],
+  "tiles": [
+    {
+      "name": "grass_0",
+      "solid": false
+    },
+    {
+      "name": "grass_1",
+      "solid": false
+    },
+    {
+      "name": "grass_2",
+      "solid": false
+    },
+    {
+      "name": "grass_3",
+      "solid": false
+    },
+    {
+      "name": "grass_tuft",
+      "solid": false
+    },
+    {
+      "name": "grass_flowers",
+      "solid": false
+    },
+    {
+      "name": "path_0",
+      "solid": false
+    },
+    {
+      "name": "path_1",
+      "solid": false
+    },
+    {
+      "name": "stone_wall",
+      "solid": true
+    },
+    {
+      "name": "rock",
+      "solid": true
+    },
+    {
+      "name": "bush",
+      "solid": true
+    }
+  ]
+}

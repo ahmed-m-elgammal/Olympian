@@ -28,3 +28,7 @@ export type { ToastHostProps, ToastEntry, ToastVariant } from './Toast';
 
 export { StatBar } from './StatBar';
 export type { StatBarProps } from './StatBar';
+
+export { Joystick } from './joystick/Joystick';
+export { intentFromKnob, clampKnob } from './joystick/joystickMath';
+export type { Vec2 } from './joystick/joystickMath';

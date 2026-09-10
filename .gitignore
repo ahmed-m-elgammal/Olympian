@@ -77,3 +77,6 @@ yarn-error.log
 
 # Generated bundled DB — reproducible via `npm run db:build`
 assets/olympian.db
+
+# QA sprite previews (regenerable via scripts/preview-sprites.ts)
+scripts/preview/

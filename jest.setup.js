@@ -1,5 +1,15 @@
 /* eslint-env jest */
 
+// 0) Set up react-native-gesture-handler's jest environment (mocks the
+//    RNGestureHandlerModule TurboModule so `Providers` and any gesture
+//    UI can import the library in tests). Must run before module imports.
+try {
+  require('react-native-gesture-handler/jestSetup');
+} catch (e) {
+  // Older gesture-handler versions without a dedicated setup — the
+  // module-level mock below would then be required instead.
+}
+
 // 1) Set up Reanimated test environment (must run before module imports).
 try {
   require('react-native-reanimated').setUpTests();
@@ -259,12 +269,28 @@ jest.mock('@shopify/react-native-skia', () => {
   const React = require('react');
   const { View } = require('react-native');
   const Canvas = React.forwardRef((_props, _ref) => null);
+  // Recorder canvas stub — DrawListRenderer records (never plays) in tests.
+  const recorderCanvas = {
+    save: () => undefined,
+    restore: () => undefined,
+    translate: () => undefined,
+    scale: () => undefined,
+    drawImageRect: () => undefined,
+    drawRect: () => undefined,
+    drawCircle: () => undefined,
+  };
   return {
     Canvas,
     // Avoid importing Skia at module load time — most consumers only need
     // the type surface for typechecking. Provide a stub.
     Skia: {
       Color: (c) => c,
+      Paint: () => ({ setAlphaf() {}, setColor() {} }),
+      XYWHRect: (x, y, width, height) => ({ x, y, width, height }),
+      PictureRecorder: () => ({
+        beginRecording: () => recorderCanvas,
+        finishRecordingAsPicture: () => ({ __mockPicture: true }),
+      }),
       Shader: { Make: () => null },
       ColorFilter: { Make: () => null },
       Image: { Make: () => null },
@@ -272,6 +298,7 @@ jest.mock('@shopify/react-native-skia', () => {
       Typeface: { MakeFreeTypeFaceFromData: () => null },
     },
     // Components used by the renderer
+    Picture: () => null,
     Image: () => null,
     Rect: () => null,
     Circle: () => null,

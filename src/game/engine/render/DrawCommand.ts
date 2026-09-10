@@ -57,6 +57,8 @@ export interface DrawCommand {
   zIndex: number;
   /** Whether to flip the sprite horizontally. Optional for `sprite`. */
   flipX?: boolean;
+  /** Whether to flip vertically (tiled mirroring). Optional for `tile`. */
+  flipY?: boolean;
   /** Opacity 0..1. Optional for all types. */
   alpha?: number;
   /** Tileset/global tile id. Required for `tile`. */

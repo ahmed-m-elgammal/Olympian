@@ -69,7 +69,7 @@ export class RenderSystem {
    * Silently drops commands beyond {@link maxCommands} (with a
    * warning log) to avoid runaway memory.
    */
-  submit(commands: DrawCommand[] | DrawCommand): void {
+  submit(commands: readonly DrawCommand[] | DrawCommand): void {
     const list = Array.isArray(commands) ? commands : [commands];
     for (const cmd of list) {
       if (this.commands.length >= this.maxCommands) {
