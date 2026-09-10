@@ -1,0 +1,86 @@
+{
+  "act_0": {
+    "title": "The Nemean Lion",
+    "subtitle": "Prologue — The Summoning",
+    "description": "Athena calls you to the ruins of Nemea, where the first labor stirs. Prove your worth against the lion whose pelt no blade can pierce.",
+    "objective": "Defeat the Nemean Lion and claim its pelt.",
+    "completion": "The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors."
+  },
+  "act_1": {
+    "title": "Hera's Wrath",
+    "subtitle": "Act 1 — The Queen of Heaven",
+    "description": "Hera, jealous of Zeus's bastards, sends her plague upon the fields of Argos. Confront her priestesses and break the curse.",
+    "objective": "Dispel the plague and confront Hera's oracle.",
+    "completion": "The fields bloom again. Hera retreats, but her gaze lingers — this is not the last you'll see of her."
+  },
+  "act_2": {
+    "title": "The Lernaean Hydra",
+    "subtitle": "Act 2 — The Swamp of Nine Heads",
+    "description": "In the poisoned swamps of Lerna, the Hydra regrows each severed head twice over. Burn the stumps or be devoured.",
+    "objective": "Slay the Hydra and harvest its bile.",
+    "completion": "The swamp hisses as the last head falls. You dip your blade in venom — the Hydra's gift to your foes."
+  },
+  "act_3": {
+    "title": "The Ceryneian Hind",
+    "subtitle": "Act 3 — The Golden Antlers",
+    "description": "A golden hind, sacred to Artemis, bounds through cedar forests. Catch her without harm — for to slay her is to anger a goddess.",
+    "objective": "Capture the Hind unharmed.",
+    "completion": "The Hind kneels before you, and from that moment is your steadfast companion. Artemis nods from afar."
+  },
+  "act_4": {
+    "title": "The Erymanthian Boar",
+    "subtitle": "Act 4 — Snow on the Mountain",
+    "description": "Mount Erymanthos is white with snow and red with boar-blood. Track the beast through frozen passes and bring it to King Eurystheus alive.",
+    "objective": "Capture the Erymanthian Boar.",
+    "completion": "The king cowers in his bronze jar as you deliver the snow-draped boar. The mountain's howl fades."
+  },
+  "act_5": {
+    "title": "The Augean Stables",
+    "subtitle": "Act 5 — A Divine Cleaning",
+    "description": "King Augeas's stables have not been cleaned in thirty years. Divert the rivers Alpheus and Peneus to wash away the filth in a single day.",
+    "objective": "Divert the rivers and cleanse the stables.",
+    "completion": "The rivers roar through the stables and the filth is gone. Augeas refuses to pay — but the labor is done."
+  },
+  "act_6": {
+    "title": "The Stymphalian Birds",
+    "subtitle": "Act 6 — Bronze Beaks",
+    "description": "A marsh of bronze-feathered man-eaters, their beaks sharp as swords. Athena's brazen rattle will startle them to flight — your arrows do the rest.",
+    "objective": "Slay the Stymphalian Birds.",
+    "completion": "The sky is clear of bronze wings. You gather three feathers as proof — they will serve as arrowheads."
+  },
+  "act_7": {
+    "title": "The Cretan Minotaur",
+    "subtitle": "Act 7 — Labyrinth of Knossos",
+    "description": "Beneath Knossos, the Labyrinth holds the Minotaur, son of a queen's shame. Ariadne's thread will guide you in — and out again, if you survive.",
+    "objective": "Slay the Minotaur and escape the Labyrinth.",
+    "completion": "The Minotaur bellows its last. You retrace the thread and emerge blinking into Cretan sun, the beast's horn in hand."
+  },
+  "act_8": {
+    "title": "The Amazon Queen",
+    "subtitle": "Act 8 — Hippolyta's Girdle",
+    "description": "Cross the Black Sea to Themiskyra. Queen Hippolyta's golden girdle is a gift of Ares — but Hera stirs treachery. Win the queen's respect, not her enmity.",
+    "objective": "Obtain the Girdle of Hippolyta.",
+    "completion": "Hippolyta yields the girdle — and joins your cause. The Amazon war-cry will echo at your side."
+  },
+  "act_9": {
+    "title": "The Riddle of the Sphinx",
+    "subtitle": "Act 9 — Winged Watcher",
+    "description": "On the cliffs above Thebes, the Sphinx demands an answer or a meal. Solve her riddle and break her curse on the city.",
+    "objective": "Answer the Sphinx's riddle.",
+    "completion": "The Sphinx shrieks as her riddle falls — and so does she. Thebes opens its gates in gratitude."
+  },
+  "act_10": {
+    "title": "The Sirens' Song",
+    "subtitle": "Act 10 — A Song That Drowns",
+    "description": "The Sirens' cliffs sing of every secret you wished you knew. Bind yourself to the mast; stuff your crew's ears with wax. Orpheus' lyre may yet drown them out.",
+    "objective": "Survive the Sirens' song.",
+    "completion": "The song fades behind you. No man has heard the Sirens and lived — until you."
+  },
+  "act_11": {
+    "title": "Descent to Hades",
+    "subtitle": "Act 11 — The Final Labor",
+    "description": "The Pillar of Olympus cracks. Cross the river Styx, past the three-headed Cerberus, into the throne of Hades. Restore the Pillar — or watch the gods fade.",
+    "objective": "Confront Hades and restore the Pillar of Olympus.",
+    "completion": "Hades yields. The Pillar knits itself whole; Olympus shines anew. The Twelve Labors are complete."
+  }
+}

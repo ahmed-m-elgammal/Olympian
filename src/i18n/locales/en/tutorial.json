@@ -1,0 +1,104 @@
+{
+  "welcome": "Welcome, mortal. Athena's voice reaches you across the ages. Today, you begin the Twelve Labors.",
+  "intro_subtitle": "Tap anywhere to continue.",
+  "intro_skip": "Hold to skip the introduction.",
+  "move": {
+    "title": "Movement",
+    "prompt": "Drag the joystick (bottom-left) to move. Try it now.",
+    "success": "Good. You move with intent."
+  },
+  "look": {
+    "title": "Camera",
+    "prompt": "Swipe anywhere else to look around the world.",
+    "success": "The world turns beneath your gaze."
+  },
+  "attack": {
+    "title": "Attack",
+    "prompt": "Tap the sword button (bottom-right) to strike. Strike the training post.",
+    "success": "Steel rings true. The post is split."
+  },
+  "dodge": {
+    "title": "Dodge",
+    "prompt": "Swipe down on the dodge button to roll away from danger.",
+    "success": "You moved like water. The blow missed."
+  },
+  "ability": {
+    "title": "Abilities",
+    "prompt": "Long-press the ability button to charge your companion's power. Release to unleash it.",
+    "success": "Athena's Wisdom reveals a hint in the world."
+  },
+  "inventory": {
+    "title": "Inventory",
+    "prompt": "Tap the satchel icon to open your inventory. Select an item to inspect it.",
+    "success": "Your pack is ready."
+  },
+  "interact": {
+    "title": "Interact",
+    "prompt": "Approach a glowing object and tap the hand icon to interact.",
+    "success": "Lifted. The object responds to your touch."
+  },
+  "save": {
+    "title": "Saving",
+    "prompt": "Step on the blue save rune to record your journey. You can also save from the pause menu.",
+    "success": "Saved. Your deeds are remembered."
+  },
+  "puzzle_intro": {
+    "title": "Puzzles",
+    "prompt": "Ahead lies a puzzle room. Read the runes, experiment, and observe. Combat alone will not save you here.",
+    "success": "Mind over muscle."
+  },
+  "combat_intro": {
+    "title": "Combat",
+    "prompt": "An enemy approaches. Watch for the wind-up — strike between their blows. Blocking reduces damage.",
+    "success": "Victory. The path is clear."
+  },
+  "boss_intro": {
+    "title": "Boss Fight",
+    "prompt": "A great foe awaits. Look for the puzzle-weakness phase — every boss has one. Athena's Wisdom can reveal it once per level.",
+    "success": "The boss falls. Take its relic."
+  },
+  "relic": {
+    "title": "Relics",
+    "prompt": "A relic grants permanent bonuses. Equip it from the Hub Town's Relic Wall.",
+    "success": "Relic acquired."
+  },
+  "companion": {
+    "title": "Companions",
+    "prompt": "A companion has joined your party. Switch active companions at the Hub Town. Your party holds up to three.",
+    "success": "Your party grows."
+  },
+  "hub": {
+    "title": "Hub Town",
+    "prompt": "This is your sanctuary: the Temple, Shop, Relic Wall, and World Map. Depart when you are ready for the next Labor.",
+    "success": "Prepared at last."
+  },
+  "overworld": {
+    "title": "Overworld",
+    "prompt": "Walk the overworld to find puzzle markers and the boss gate. Hidden chests hold gold and lore.",
+    "success": "Onward, hero."
+  },
+  "death": {
+    "title": "Defeat",
+    "prompt": "You fell — but the gods are not finished with you. Rise at the last save rune.",
+    "success": "Resurrected. Try again, wiser this time."
+  },
+  "hint": {
+    "athena": "Athena offers a hint. Use it once per level — your Wisdom is not infinite.",
+    "no_hint": "No hint available here. Trust your instincts."
+  },
+  "objective": {
+    "title": "Objective",
+    "prompt": "Your current objective appears at the top of the screen. Tap it to pin a quest marker on the map.",
+    "success": "Objective marked."
+  },
+  "settings": {
+    "title": "Settings",
+    "prompt": "Open the pause menu anytime to adjust audio, controls, and accessibility options.",
+    "success": "Settings adjusted."
+  },
+  "complete": {
+    "title": "Tutorial Complete",
+    "prompt": "You've learned the basics. The Twelve Labors await — go forth, hero.",
+    "success": "The tutorial ends. The myth begins."
+  }
+}

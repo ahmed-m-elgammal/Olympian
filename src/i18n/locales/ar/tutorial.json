@@ -1,0 +1,104 @@
+{
+  "welcome": "[AR] Welcome, mortal. Athena's voice reaches you across the ages. Today, you begin the Twelve Labors.",
+  "intro_subtitle": "اضغط في أي مكان للمتابعة.",
+  "intro_skip": "اضغط مطولاً لتخطي المقدمة.",
+  "move": {
+    "title": "الحركة",
+    "prompt": "[AR] Drag the joystick (bottom-left) to move. Try it now.",
+    "success": "[AR] Good. You move with intent."
+  },
+  "look": {
+    "title": "الكاميرا",
+    "prompt": "[AR] Swipe anywhere else to look around the world.",
+    "success": "[AR] The world turns beneath your gaze."
+  },
+  "attack": {
+    "title": "الهجوم",
+    "prompt": "[AR] Tap the sword button (bottom-right) to strike. Strike the training post.",
+    "success": "[AR] Steel rings true. The post is split."
+  },
+  "dodge": {
+    "title": "التفادي",
+    "prompt": "[AR] Swipe down on the dodge button to roll away from danger.",
+    "success": "[AR] You moved like water. The blow missed."
+  },
+  "ability": {
+    "title": "القدرات",
+    "prompt": "[AR] Long-press the ability button to charge your companion's power. Release to unleash it.",
+    "success": "[AR] Athena's Wisdom reveals a hint in the world."
+  },
+  "inventory": {
+    "title": "الحقيبة",
+    "prompt": "[AR] Tap the satchel icon to open your inventory. Select an item to inspect it.",
+    "success": "[AR] Your pack is ready."
+  },
+  "interact": {
+    "title": "التفاعل",
+    "prompt": "[AR] Approach a glowing object and tap the hand icon to interact.",
+    "success": "[AR] Lifted. The object responds to your touch."
+  },
+  "save": {
+    "title": "الحفظ",
+    "prompt": "[AR] Step on the blue save rune to record your journey. You can also save from the pause menu.",
+    "success": "[AR] Saved. Your deeds are remembered."
+  },
+  "puzzle_intro": {
+    "title": "الألغاز",
+    "prompt": "[AR] Ahead lies a puzzle room. Read the runes, experiment, and observe. Combat alone will not save you here.",
+    "success": "[AR] Mind over muscle."
+  },
+  "combat_intro": {
+    "title": "القتال",
+    "prompt": "[AR] An enemy approaches. Watch for the wind-up — strike between their blows. Blocking reduces damage.",
+    "success": "[AR] Victory. The path is clear."
+  },
+  "boss_intro": {
+    "title": "معركة الزعيم",
+    "prompt": "[AR] A great foe awaits. Look for the puzzle-weakness phase — every boss has one. Athena's Wisdom can reveal it once per level.",
+    "success": "[AR] The boss falls. Take its relic."
+  },
+  "relic": {
+    "title": "الآثار",
+    "prompt": "[AR] A relic grants permanent bonuses. Equip it from the Hub Town's Relic Wall.",
+    "success": "[AR] Relic acquired."
+  },
+  "companion": {
+    "title": "الرفقاء",
+    "prompt": "[AR] A companion has joined your party. Switch active companions at the Hub Town. Your party holds up to three.",
+    "success": "[AR] Your party grows."
+  },
+  "hub": {
+    "title": "بلدة المحور",
+    "prompt": "[AR] This is your sanctuary: the Temple, Shop, Relic Wall, and World Map. Depart when you are ready for the next Labor.",
+    "success": "[AR] Prepared at last."
+  },
+  "overworld": {
+    "title": "العالم الخارجي",
+    "prompt": "[AR] Walk the overworld to find puzzle markers and the boss gate. Hidden chests hold gold and lore.",
+    "success": "[AR] Onward, hero."
+  },
+  "death": {
+    "title": "الهزيمة",
+    "prompt": "[AR] You fell — but the gods are not finished with you. Rise at the last save rune.",
+    "success": "[AR] Resurrected. Try again, wiser this time."
+  },
+  "hint": {
+    "athena": "[AR] Athena offers a hint. Use it once per level — your Wisdom is not infinite.",
+    "no_hint": "[AR] No hint available here. Trust your instincts."
+  },
+  "objective": {
+    "title": "الهدف",
+    "prompt": "[AR] Your current objective appears at the top of the screen. Tap it to pin a quest marker on the map.",
+    "success": "[AR] Objective marked."
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "prompt": "[AR] Open the pause menu anytime to adjust audio, controls, and accessibility options.",
+    "success": "[AR] Settings adjusted."
+  },
+  "complete": {
+    "title": "اكتمال الشرح",
+    "prompt": "[AR] You've learned the basics. The Twelve Labors await — go forth, hero.",
+    "success": "[AR] The tutorial ends. The myth begins."
+  }
+}

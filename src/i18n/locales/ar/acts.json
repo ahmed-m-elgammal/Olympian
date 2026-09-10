@@ -1,0 +1,86 @@
+{
+  "act_0": {
+    "title": "أسد نيميا",
+    "subtitle": "مقدمة — الاستدعاء",
+    "description": "[AR] Athena calls you to the ruins of Nemea, where the first labor stirs. Prove your worth against the lion whose pelt no blade can pierce.",
+    "objective": "[AR] Defeat the Nemean Lion and claim its pelt.",
+    "completion": "[AR] The lion falls. Athena appears in a flash of bronze and welcomes you to the path of the Twelve Labors."
+  },
+  "act_1": {
+    "title": "[AR] Hera's Wrath",
+    "subtitle": "الفصل 1 — ملكة السماء",
+    "description": "[AR] Hera, jealous of Zeus's bastards, sends her plague upon the fields of Argos. Confront her priestesses and break the curse.",
+    "objective": "[AR] Dispel the plague and confront Hera's oracle.",
+    "completion": "[AR] The fields bloom again. Hera retreats, but her gaze lingers — this is not the last you'll see of her."
+  },
+  "act_2": {
+    "title": "[AR] The Lernaean Hydra",
+    "subtitle": "الفصل 2 — مستنقع الرؤوس التسعة",
+    "description": "[AR] In the poisoned swamps of Lerna, the Hydra regrows each severed head twice over. Burn the stumps or be devoured.",
+    "objective": "[AR] Slay the Hydra and harvest its bile.",
+    "completion": "[AR] The swamp hisses as the last head falls. You dip your blade in venom — the Hydra's gift to your foes."
+  },
+  "act_3": {
+    "title": "[AR] The Ceryneian Hind",
+    "subtitle": "الفصل 3 — القرون الذهبية",
+    "description": "[AR] A golden hind, sacred to Artemis, bounds through cedar forests. Catch her without harm — for to slay her is to anger a goddess.",
+    "objective": "[AR] Capture the Hind unharmed.",
+    "completion": "[AR] The Hind kneels before you, and from that moment is your steadfast companion. Artemis nods from afar."
+  },
+  "act_4": {
+    "title": "[AR] The Erymanthian Boar",
+    "subtitle": "الفصل 4 — ثلج على الجبل",
+    "description": "[AR] Mount Erymanthos is white with snow and red with boar-blood. Track the beast through frozen passes and bring it to King Eurystheus alive.",
+    "objective": "[AR] Capture the Erymanthian Boar.",
+    "completion": "[AR] The king cowers in his bronze jar as you deliver the snow-draped boar. The mountain's howl fades."
+  },
+  "act_5": {
+    "title": "[AR] The Augean Stables",
+    "subtitle": "الفصل 5 — تنظيف إلهي",
+    "description": "[AR] King Augeas's stables have not been cleaned in thirty years. Divert the rivers Alpheus and Peneus to wash away the filth in a single day.",
+    "objective": "[AR] Divert the rivers and cleanse the stables.",
+    "completion": "[AR] The rivers roar through the stables and the filth is gone. Augeas refuses to pay — but the labor is done."
+  },
+  "act_6": {
+    "title": "[AR] The Stymphalian Birds",
+    "subtitle": "الفصل 6 — مناقير برونزية",
+    "description": "[AR] A marsh of bronze-feathered man-eaters, their beaks sharp as swords. Athena's brazen rattle will startle them to flight — your arrows do the rest.",
+    "objective": "[AR] Slay the Stymphalian Birds.",
+    "completion": "[AR] The sky is clear of bronze wings. You gather three feathers as proof — they will serve as arrowheads."
+  },
+  "act_7": {
+    "title": "[AR] The Cretan Minotaur",
+    "subtitle": "الفصل 7 — متاهة كنوسوس",
+    "description": "[AR] Beneath Knossos, the Labyrinth holds the Minotaur, son of a queen's shame. Ariadne's thread will guide you in — and out again, if you survive.",
+    "objective": "[AR] Slay the Minotaur and escape the Labyrinth.",
+    "completion": "[AR] The Minotaur bellows its last. You retrace the thread and emerge blinking into Cretan sun, the beast's horn in hand."
+  },
+  "act_8": {
+    "title": "[AR] The Amazon Queen",
+    "subtitle": "الفصل 8 — حزام هيبوليتا",
+    "description": "[AR] Cross the Black Sea to Themiskyra. Queen Hippolyta's golden girdle is a gift of Ares — but Hera stirs treachery. Win the queen's respect, not her enmity.",
+    "objective": "[AR] Obtain the Girdle of Hippolyta.",
+    "completion": "[AR] Hippolyta yields the girdle — and joins your cause. The Amazon war-cry will echo at your side."
+  },
+  "act_9": {
+    "title": "[AR] The Riddle of the Sphinx",
+    "subtitle": "الفصل 9 — الحارس المجنّح",
+    "description": "[AR] On the cliffs above Thebes, the Sphinx demands an answer or a meal. Solve her riddle and break her curse on the city.",
+    "objective": "[AR] Answer the Sphinx's riddle.",
+    "completion": "[AR] The Sphinx shrieks as her riddle falls — and so does she. Thebes opens its gates in gratitude."
+  },
+  "act_10": {
+    "title": "[AR] The Sirens' Song",
+    "subtitle": "الفصل 10 — أغنية تُغرق",
+    "description": "[AR] The Sirens' cliffs sing of every secret you wished you knew. Bind yourself to the mast; stuff your crew's ears with wax. Orpheus' lyre may yet drown them out.",
+    "objective": "[AR] Survive the Sirens' song.",
+    "completion": "[AR] The song fades behind you. No man has heard the Sirens and lived — until you."
+  },
+  "act_11": {
+    "title": "[AR] Descent to Hades",
+    "subtitle": "الفصل 11 — العمل الأخير",
+    "description": "[AR] The Pillar of Olympus cracks. Cross the river Styx, past the three-headed Cerberus, into the throne of Hades. Restore the Pillar — or watch the gods fade.",
+    "objective": "[AR] Confront Hades and restore the Pillar of Olympus.",
+    "completion": "[AR] Hades yields. The Pillar knits itself whole; Olympus shines anew. The Twelve Labors are complete."
+  }
+}
