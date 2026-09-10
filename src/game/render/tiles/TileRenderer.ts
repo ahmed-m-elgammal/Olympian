@@ -1,10 +1,31 @@
 /**
- * TileRenderer — Skia tile blitter with batching + culling
+ * TileRenderer — Skia tile blitter with run merging + culling
  * (spec 07 §3.4).
  *
  * Walks a {@link TileMap} layer and emits `drawImageRect` calls against
- * a Skia canvas, batching by source rect to minimize Skia paint
- * setup. Off-screen tiles (outside the camera viewport) are culled.
+ * a Skia canvas. Optimizations (spec 07 §3.4 "merge horizontal runs of
+ * same tileId into one ImageRect"):
+ *
+ *  - **Culling**: tiles outside the camera viewport are skipped before
+ *    any batching work happens.
+ *  - **Run merging**: horizontally adjacent, visually identical tiles
+ *    (same source rect + same flip state) are merged into a single
+ *    `drawImageRect` whose destination is the full run. Stretching one
+ *    tile across a run of N identical tiles is pixel-identical to N
+ *    separate draws, so a dense map collapses to ~(visible rows × runs)
+ *    draw calls instead of one per tile.
+ *  - **Zero per-frame allocations**: no intermediate Maps or string keys —
+ *    a single pass appends merged ops to the output array.
+ *
+ * All destination rects are in WORLD space; the camera transform
+ * (translate + scale) is applied once on the canvas, so draw calls stay
+ * zoom-agnostic. Drawing in pre-transformed screen coords here would
+ * double-apply the zoom (canvas.scale × pre-multiplied dest).
+ *
+ * Tiled flip flags are honored: horizontal/vertical flips are applied
+ * via canvas scale transforms (and merge fine, since a mirrored strip of
+ * identical tiles equals a strip of mirrored tiles). Diagonal flips are
+ * drawn individually via a 90° rotation (transposition does not merge).
  *
  * To keep this module unit-testable without a native Skia runtime, the
  * renderer operates on a small {@link SkiaCanvasLike} interface rather
@@ -59,6 +80,8 @@ export interface SkiaCanvasLike {
   translate(dx: number, dy: number): void;
   /** Scale the current matrix. */
   scale(sx: number, sy: number): void;
+  /** Rotate the current matrix by `radians` (only needed for diag flips). */
+  rotate?(radians: number): void;
   /** Clip to the given rect. */
   clipRect?(rect: SkiaRect, op?: ClipOpLike): void;
   /**
@@ -93,16 +116,26 @@ export interface TileRendererOptions {
  * and for tests to verify which tiles were emitted.
  */
 export interface TileDrawOp {
-  /** Source rect in the tileset image. */
+  /** Source rect in the tileset image (a single tile's rect). */
   src: SkiaRect;
-  /** Destination rect in screen space (already camera-transformed). */
+  /**
+   * Destination rect in WORLD space (the camera transform is applied on
+   * the canvas, NOT baked into this rect). Width/height may span a whole
+   * merged run of identical tiles.
+   */
   dest: SkiaRect;
-  /** Tile ID (for debugging / dedup verification). */
+  /** Tile ID of the first tile in the run (for debugging / tests). */
   tileId: number;
+  /** Number of tiles merged into this op (1 = unmerged). */
+  tileCount: number;
+  /** Tiled flip flags (all tiles in a run share them). */
+  flipX: boolean;
+  flipY: boolean;
+  flipDiag: boolean;
 }
 
 /**
- * Tile renderer: batches + culls tiles per layer.
+ * Tile renderer: culls + batch-merges tiles per layer.
  *
  * @example
  * ```ts
@@ -138,15 +171,15 @@ export class TileRenderer {
    * Draw all tiles in the named layer.
    *
    * Steps:
-   *  1. Save the canvas, apply camera transform.
+   *  1. Save the canvas, apply the camera transform (translate + scale).
    *  2. Compute the visible world-space bounds (for culling).
    *  3. Walk the layer's tiles, skipping off-screen ones.
-   *  4. Group remaining tiles by source rect (batch).
-   *  5. Emit one `drawImageRect` per tile (preserves 1:1 size).
+   *  4. Merge horizontal runs of visually identical tiles.
+   *  5. Emit one `drawImageRect` per merged run (world-space dest).
    *  6. Restore the canvas.
    *
    * @returns the number of `drawImageRect` calls actually emitted
-   *          (post-culling).
+   *          (post-culling, post-merging).
    */
   drawLayer(layerName: string): number {
     const layer = this.tileMap.getLayer(layerName);
@@ -166,63 +199,83 @@ export class TileRenderer {
   }
 
   /**
-   * Compute the visible ops for a layer WITHOUT drawing them. Useful
-   * for tests and for pre-batching multiple layers before flushing.
+   * Compute the visible, run-merged ops for a layer WITHOUT drawing
+   * them. Useful for tests and for pre-batching multiple layers before
+   * flushing.
+   *
+   * Single pass, no intermediate Map/string keys: each tile either
+   * extends the current run or flushes it.
    */
   computeBatch(layer: Layer): TileDrawOp[] {
     const bounds = this.camera.getVisibleBounds();
-    const zoom = this.camera.zoom;
     const minX = bounds.x;
     const minY = bounds.y;
     const maxX = bounds.x + bounds.width;
     const maxY = bounds.y + bounds.height;
 
-    // Bucket by (srcX, srcY, srcW, srcH) so the test harness can
-    // verify "same tileId batched together". We still emit one call
-    // per tile in `drawLayerTiles` (each tile keeps its 1:1 size);
-    // the bucketing is for diagnostic + future merge work.
-    const buckets = new Map<string, TileDrawOp[]>();
+    const ops: TileDrawOp[] = [];
+    let run: TileDrawOp | null = null;
+
     for (const tile of layer.tiles) {
-      // Cull: skip tiles entirely outside the visible bounds. Add a
-      // one-tile margin so partially visible tiles are kept.
-      const margin = Math.max(tile.srcWidth, tile.srcHeight);
+      // Cull: skip tiles entirely outside the visible world bounds
+      // (strict inequalities — zero-pixel overlap is culled).
       if (
-        tile.x + tile.srcWidth < minX - margin ||
-        tile.x > maxX + margin ||
-        tile.y + tile.srcHeight < minY - margin ||
-        tile.y > maxY + margin
+        tile.x + tile.srcWidth <= minX ||
+        tile.x >= maxX ||
+        tile.y + tile.srcHeight <= minY ||
+        tile.y >= maxY
       ) {
         continue;
       }
-      const src: SkiaRect = {
-        x: tile.srcX,
-        y: tile.srcY,
-        width: tile.srcWidth,
-        height: tile.srcHeight,
-      };
-      const dest: SkiaRect = {
-        x: tile.x * zoom,
-        y: tile.y * zoom,
-        width: tile.srcWidth * zoom,
-        height: tile.srcHeight * zoom,
-      };
-      const op: TileDrawOp = { src, dest, tileId: tile.tileId };
-      const key = `${src.x},${src.y},${src.width},${src.height}`;
-      let bucket = buckets.get(key);
-      if (!bucket) {
-        bucket = [];
-        buckets.set(key, bucket);
+
+      // Diagonal flips transpose the tile — they cannot merge into
+      // horizontal runs; each is emitted individually.
+      if (
+        run !== null &&
+        !tile.flipDiag &&
+        !run.flipDiag &&
+        run.src.x === tile.srcX &&
+        run.src.y === tile.srcY &&
+        run.src.width === tile.srcWidth &&
+        run.src.height === tile.srcHeight &&
+        run.dest.y === tile.y &&
+        run.dest.height === tile.srcHeight &&
+        run.flipX === tile.flipX &&
+        run.flipY === tile.flipY &&
+        run.dest.x + run.dest.width === tile.x
+      ) {
+        // Extend the run: same single-tile src, wider dest.
+        run.dest.width += tile.srcWidth;
+        run.tileCount += 1;
+      } else {
+        if (run !== null) {
+          ops.push(run);
+        }
+        run = {
+          src: {
+            x: tile.srcX,
+            y: tile.srcY,
+            width: tile.srcWidth,
+            height: tile.srcHeight,
+          },
+          dest: {
+            x: tile.x,
+            y: tile.y,
+            width: tile.srcWidth,
+            height: tile.srcHeight,
+          },
+          tileId: tile.tileId,
+          tileCount: 1,
+          flipX: tile.flipX,
+          flipY: tile.flipY,
+          flipDiag: tile.flipDiag,
+        };
       }
-      bucket.push(op);
+    }
+    if (run !== null) {
+      ops.push(run);
     }
 
-    // Flatten buckets back into a single list (preserving bucket order).
-    const ops: TileDrawOp[] = [];
-    for (const bucket of buckets.values()) {
-      for (const op of bucket) {
-        ops.push(op);
-      }
-    }
     return ops;
   }
 
@@ -234,21 +287,20 @@ export class TileRenderer {
 
     this.lastBatch = [];
 
-    // Apply camera transform: translate first (Skia's `translate`
-    // post-multiplies the matrix, so we apply scale AFTER translate
-    // to map world → screen).
+    // Apply camera transform: translate first, then scale. Skia
+    // post-multiplies, so a world point maps to screen as
+    //   screen = (world * scale) + translate = (world - camera) * zoom.
+    // Draw calls below use WORLD-space dests — the canvas transform
+    // applies the zoom exactly once.
     this.canvas.save();
     const t = this.camera.getTransform();
     this.canvas.translate(t.translateX, t.translateY);
     this.canvas.scale(t.scale, t.scale);
 
-    // Optional: clip to viewport so we don't waste fill rate outside
-    // the visible area.
+    // Clip to the viewport (expressed in world coordinates — we are
+    // inside the camera transform) so fill rate isn't wasted off-screen.
     if (this.canvas.clipRect) {
       const v = this.camera.viewport;
-      // We're already inside translate/scale, so the clip needs to be
-      // expressed in *world* coordinates here. Inverse-transform the
-      // screen-space viewport.
       const worldClip: SkiaRect = {
         x: this.camera.position.x,
         y: this.camera.position.y,
@@ -260,18 +312,68 @@ export class TileRenderer {
 
     const ops = this.computeBatch(layer);
     for (const op of ops) {
-      this.canvas.drawImageRect(
-        this.tilesetImage,
-        op.src,
-        op.dest,
-        this.paint ?? null,
-        false,
-      );
+      this.drawOp(op);
     }
 
     this.canvas.restore();
     this.lastBatch = ops;
     return ops.length;
+  }
+
+  /**
+   * Emit one draw call for a merged op, applying any Tiled flip via a
+   * canvas transform around the draw. Merged runs share flip state, so
+   * a single transform covers the whole run.
+   */
+  private drawOp(op: TileDrawOp): void {
+    const { dest, src } = op;
+
+    if (!op.flipX && !op.flipY && !op.flipDiag) {
+      this.canvas.drawImageRect(this.tilesetImage, src, dest, this.paint ?? null, false);
+      return;
+    }
+
+    this.canvas.save();
+    try {
+      if (op.flipDiag) {
+        // Diagonal flip = transposition: dest(x, y) = src(y, x).
+        // Compose rotate(90°) then mirror-x (rotation applies first).
+        // Requires square tiles (Tiled's own assumption for diag flips).
+        if (!this.canvas.rotate) {
+          // Canvas can't rotate — fall back to drawing unflipped rather
+          // than skipping the tile entirely.
+          this.canvas.drawImageRect(this.tilesetImage, src, dest, this.paint ?? null, false);
+          return;
+        }
+        this.canvas.translate(dest.x, dest.y);
+        this.canvas.scale(-1, 1);
+        this.canvas.rotate(Math.PI / 2);
+        this.canvas.drawImageRect(
+          this.tilesetImage,
+          src,
+          { x: 0, y: 0, width: dest.height, height: dest.width },
+          this.paint ?? null,
+          false,
+        );
+        return;
+      }
+
+      // Mirror flips: translate to the appropriate corner so the scale(-1)
+      // pivots inside the (possibly multi-tile) run rect.
+      const pivotX = op.flipX ? dest.x + dest.width : dest.x;
+      const pivotY = op.flipY ? dest.y + dest.height : dest.y;
+      this.canvas.translate(pivotX, pivotY);
+      this.canvas.scale(op.flipX ? -1 : 1, op.flipY ? -1 : 1);
+      this.canvas.drawImageRect(
+        this.tilesetImage,
+        src,
+        { x: 0, y: 0, width: dest.width, height: dest.height },
+        this.paint ?? null,
+        false,
+      );
+    } finally {
+      this.canvas.restore();
+    }
   }
 }
 
@@ -292,5 +394,13 @@ export function tileToOp(tile: Tile): TileDrawOp {
     width: tile.srcWidth,
     height: tile.srcHeight,
   };
-  return { src, dest, tileId: tile.tileId };
+  return {
+    src,
+    dest,
+    tileId: tile.tileId,
+    tileCount: 1,
+    flipX: tile.flipX,
+    flipY: tile.flipY,
+    flipDiag: tile.flipDiag,
+  };
 }

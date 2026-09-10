@@ -38,6 +38,8 @@ export class ScreenShake {
   public maxIntensity: number = 20;
   /** Current intensity (decays over time). */
   public intensity: number = 0;
+  /** Intensity the active shake started with (before decay). */
+  public initialIntensity: number = 0;
   /** Remaining duration (ms). */
   public durationMs: number = 0;
   /** Total duration of the active shake (ms). Used for falloff. */
@@ -46,7 +48,7 @@ export class ScreenShake {
   public isActive: boolean = false;
 
   /**
-   * Start (or extend) a shake.
+   * Start (or replace) the current shake.
    *
    * @param durationMs  How long the shake lasts.
    * @param intensity   Maximum displacement in pixels. Clamped to
@@ -56,13 +58,15 @@ export class ScreenShake {
     if (durationMs <= 0) return;
     this.durationMs = durationMs;
     this.totalDurationMs = durationMs;
-    this.intensity = Math.max(0, Math.min(intensity, this.maxIntensity));
+    this.initialIntensity = Math.max(0, Math.min(intensity, this.maxIntensity));
+    this.intensity = this.initialIntensity;
     this.isActive = true;
   }
 
   /**
-   * Advance the shake clock by `deltaMs`. Decays intensity linearly
-   * over the configured duration.
+   * Advance the shake clock by `deltaMs`. Intensity follows a quadratic
+   * falloff over the configured duration (matches the spec's `trauma²`
+   * model): large shakes start hard and taper gently to zero.
    */
   update(deltaMs: number): void {
     if (!this.isActive) return;
@@ -73,13 +77,10 @@ export class ScreenShake {
       this.isActive = false;
       return;
     }
-    // Linear decay: intensity * (remaining / total).
+    // Quadratic falloff from the *initial* intensity:
+    //   intensity(t) = initial * (remaining / total)²
     const fraction = this.durationMs / this.totalDurationMs;
-    // Quadratic falloff (matches spec 07 §3.6 trauma^2 model).
-    const falloff = fraction * fraction;
-    // Re-derive from the original max (stored separately).
-    const originalMax = this.intensity / Math.max(fraction * fraction, 1e-6);
-    this.intensity = originalMax * falloff;
+    this.intensity = this.initialIntensity * fraction * fraction;
   }
 
   /**
@@ -107,6 +108,7 @@ export class ScreenShake {
   cancel(): void {
     this.durationMs = 0;
     this.intensity = 0;
+    this.initialIntensity = 0;
     this.isActive = false;
   }
 }

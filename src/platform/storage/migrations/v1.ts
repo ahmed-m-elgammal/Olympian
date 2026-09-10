@@ -1,14 +1,12 @@
-import type { DB } from '@op-engineering/op-sqlite';
-
-import type { Migration } from './types';
+import type { Migration, MigrationExecutor } from './types';
 
 /**
  * DDL statements for schema v1.
  *
  * Order matters: `schema_version` is created first (by the migration runner
- * before any migration runs), then catalog tables (`items`, `enemies`) which
- * have no inbound FKs, then `saves` (the parent of all per-save tables),
- * then the per-save child tables.
+ * before any migration runs), then `saves` (the parent of all per-save
+ * tables), then the catalog tables (`enemies`, `items`) which have no
+ * inbound FKs, then the per-save child tables.
  *
  * Every table is created with `IF NOT EXISTS` so that re-running the v1
  * migration on a partially-applied database is safe (idempotent).
@@ -231,12 +229,12 @@ export const V1_STATEMENTS: readonly string[] = [
     updated_at      INTEGER NOT NULL
   )`,
 
-  // -----------------------------------------------------------------------
-  // Performance pragmas (spec 03 §8): WAL journal mode for better concurrency.
-  // These are no-ops on writes but set connection-level options.
-  // -----------------------------------------------------------------------
-  `PRAGMA journal_mode = WAL`,
-  `PRAGMA foreign_keys = ON`,
+  // NOTE: connection-level pragmas (`journal_mode = WAL`,
+  // `foreign_keys = ON`, spec 03 §8) are intentionally NOT part of this
+  // migration. SQLite cannot change journal mode inside a transaction and
+  // silently ignores `foreign_keys` inside one — both pragmas are applied
+  // by `openDatabase()` right after the connection is opened, outside any
+  // transaction (see sqlite.ts).
 ];
 
 /**
@@ -245,15 +243,15 @@ export const V1_STATEMENTS: readonly string[] = [
  * relics, dialogues, event_log, settings) and 13 indexes per spec 03 §4.
  *
  * `schema_version` is created by the migration runner before this runs.
+ * The runner wraps these statements in its own transaction — this
+ * function must not open one (SQLite forbids nested transactions).
  */
 export const migrationV1: Migration = {
   version: 1,
   description: 'Initial schema — all 14 tables per spec 03 §4',
-  async up(db: DB): Promise<void> {
-    await db.transaction(async (tx) => {
-      for (const stmt of V1_STATEMENTS) {
-        await tx.execute(stmt);
-      }
-    });
+  async up(tx: MigrationExecutor): Promise<void> {
+    for (const stmt of V1_STATEMENTS) {
+      await tx.execute(stmt);
+    }
   },
 };

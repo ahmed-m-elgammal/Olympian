@@ -20,7 +20,7 @@
 
 import { Canvas, useCanvasRef } from '@shopify/react-native-skia';
 import React, { useEffect, useRef } from 'react';
-import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { LayoutChangeEvent, StyleSheet, StyleProp, View, ViewStyle } from 'react-native';
 
 import { logger } from '@/shared/log';
 
@@ -54,7 +54,7 @@ export interface GameCanvasProps {
    * only controls the parent wrapper's appearance (background color,
    * etc.).
    */
-  style?: React.CSSProperties;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -108,7 +108,7 @@ export function GameCanvas({
 
   return (
     <View
-      style={[styles.fill, style as unknown as Record<string, unknown>]}
+      style={[styles.fill, style]}
       onLayout={handleLayout}
       collapsable={false}
     >
@@ -122,8 +122,8 @@ export function GameCanvas({
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-    width: '100%' as unknown as number,
-    height: '100%' as unknown as number,
+    width: '100%',
+    height: '100%',
   },
 });
 

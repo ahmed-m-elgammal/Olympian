@@ -1,11 +1,12 @@
 /**
  * op-sqlite wrapper — single shared DB connection + forward-only migration runner.
  *
- * Spec reference: 03 §3 (Migration framework), 02 §3 (Layer 1: Platform).
+ * Spec reference: 03 §3 (Migration framework), 02 §3 (Layer 1: Platform),
+ * 03 §8 (WAL journal mode).
  *
  * Usage:
  *   import { openDatabase, getDb, closeDatabase } from '@/platform/storage/sqlite';
- *   await openDatabase();          // open + migrate
+ *   await openDatabase();          // open + set pragmas + migrate
  *   const db = getDb();             // synchronous accessor; throws if not open
  *   const res = db.executeSync('SELECT 1 as n');
  *   await closeDatabase();
@@ -28,9 +29,17 @@ const SCHEMA_VERSION_TABLE = 'schema_version';
 let _db: DB | null = null;
 
 /**
- * Open the database connection (creating the file if needed) and run any
- * pending migrations. Idempotent: calling twice is a no-op (returns the
- * existing handle).
+ * Open the database connection (creating the file if needed), apply
+ * connection-level pragmas, and run any pending migrations. Idempotent:
+ * calling twice is a no-op (returns the existing handle).
+ *
+ * Pragmas (spec 03 §8):
+ *   - `journal_mode = WAL` — better read/write concurrency. Must run
+ *     OUTSIDE a transaction (SQLite refuses to switch journal modes
+ *     inside one).
+ *   - `foreign_keys = ON` — enforce FK constraints (per-connection
+ *     setting; SQLite defaults to OFF and silently ignores this pragma
+ *     inside a transaction, so it is applied here on every open).
  *
  * @returns Result with the open DB handle on success, or an Error on failure.
  */
@@ -46,6 +55,17 @@ export async function openDatabase(
     const db = open({ name, location: options?.location });
     _db = db;
     logger.info(`[sqlite] opened database "${name}"`);
+
+    const pragmaResult = await applyConnectionPragmas(db);
+    if (!pragmaResult.ok) {
+      try {
+        db.close();
+      } catch (closeErr) {
+        logger.warn('[sqlite] failed to close after pragma failure', closeErr);
+      }
+      _db = null;
+      return pragmaResult;
+    }
 
     const migrateResult = await migrate(db);
     if (!migrateResult.ok) {
@@ -68,17 +88,49 @@ export async function openDatabase(
 }
 
 /**
+ * Apply connection-level pragmas. MUST be called before any transaction
+ * is active on the connection (see doc comment on {@link openDatabase}).
+ */
+async function applyConnectionPragmas(db: DB): Promise<Result<true, Error>> {
+  try {
+    const walResult = await db.execute('PRAGMA journal_mode = WAL');
+    const row = (walResult.rows ?? [])[0] as Record<string, Scalar> | undefined;
+    const mode = typeof row?.journal_mode === 'string' ? row.journal_mode : String(row?.journal_mode ?? '?');
+    if (mode.toLowerCase() !== 'wal') {
+      logger.warn(`[sqlite] journal_mode is "${mode}" (expected wal)`);
+    }
+    await db.execute('PRAGMA foreign_keys = ON');
+    logger.info('[sqlite] pragmas applied (journal_mode=wal, foreign_keys=on)');
+    return ok(true);
+  } catch (e) {
+    const error = e instanceof Error ? e : new Error(String(e));
+    logger.error('[sqlite] failed to apply connection pragmas', error);
+    return err(error);
+  }
+}
+
+/**
  * Run all pending migrations forward. Idempotent: re-running on a fully
  * migrated database is a no-op.
  *
  * Algorithm (spec 03 §3):
  *   1. CREATE TABLE IF NOT EXISTS schema_version (version, applied_at)
  *   2. SELECT MAX(version) FROM schema_version  →  currentVersion
- *   3. For each migration whose version > currentVersion, run `up()`
- *   4. After each successful migration, INSERT INTO schema_version
+ *   3. For each migration whose version > currentVersion:
+ *        BEGIN TRANSACTION
+ *          run migration's `up()` statements
+ *          INSERT INTO schema_version
+ *        COMMIT (or ROLLBACK on failure)
  *
- * The whole apply-pending sequence runs inside a single transaction so a
- * mid-sequence failure rolls back to the last fully-applied version.
+ * Each migration runs in its OWN transaction, and the schema-version row
+ * is recorded inside that same transaction — so a migration's DDL and its
+ * version bump commit or roll back atomically. A failed migration aborts
+ * the run; earlier migrations stay applied (the DB is left at the last
+ * good version, and a later retry resumes from there).
+ *
+ * Migrations must not open nested transactions — the `Migration.up()`
+ * signature only accepts a plain statement executor, so nesting is
+ * impossible by construction.
  */
 export async function migrate(db: DB): Promise<Result<number, Error>> {
   try {
@@ -103,20 +155,17 @@ export async function migrate(db: DB): Promise<Result<number, Error>> {
       return ok(currentVersion);
     }
 
-    // 4. Apply each pending migration inside a single transaction.
-    await db.transaction(async (tx) => {
-      for (const m of pending) {
-        logger.info(`[sqlite] applying migration v${m.version} — ${m.description}`);
-        // Pass `db` (the connection) to the migration, not `tx`. The
-        // migration's own `execute()` calls participate in our outer
-        // transaction (op-sqlite reuses the connection's active tx).
-        await m.up(db);
+    // 4. Apply each pending migration in its own transaction.
+    for (const m of pending) {
+      logger.info(`[sqlite] applying migration v${m.version} — ${m.description}`);
+      await db.transaction(async (tx) => {
+        await m.up(tx);
         await tx.execute(
           `INSERT INTO ${SCHEMA_VERSION_TABLE} (version, applied_at) VALUES (?, ?)`,
           [m.version, Date.now()],
         );
-      }
-    });
+      });
+    }
 
     const finalVersion = pending[pending.length - 1]!.version;
     logger.info(`[sqlite] migrations complete (at v${finalVersion})`);

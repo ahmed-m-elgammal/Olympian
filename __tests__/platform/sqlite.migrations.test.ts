@@ -349,9 +349,65 @@ describe('SQLite migration runner (spec 03 §3, §4)', () => {
       /^\s*CREATE\s+(TABLE|UNIQUE\s+INDEX|INDEX)\b/i.test(s),
     ).length;
     expect(createCount).toBe(27);
-    // And the v1 statements array itself contains exactly 28 entries
-    // (13 tables + 13 indexes + 2 pragmas).
-    expect(V1_STATEMENTS.length).toBe(28);
+    // And the v1 statements array itself contains exactly 26 entries
+    // (13 tables + 13 indexes). Connection pragmas are applied by
+    // openDatabase(), NOT by the migration — pragmas cannot run inside
+    // a transaction (journal_mode would fail, foreign_keys is a no-op).
+    expect(V1_STATEMENTS.length).toBe(26);
+    expect(V1_STATEMENTS.some((s) => /^\s*PRAGMA/i.test(s))).toBe(false);
+  });
+
+  it('applies connection pragmas on open, before any transaction', async () => {
+    await openDatabase();
+    const statements = mockFakeDb.executedStatements;
+    const walIdx = statements.findIndex((s) => /PRAGMA\s+journal_mode\s*=\s*WAL/i.test(s));
+    const fkIdx = statements.findIndex((s) => /PRAGMA\s+foreign_keys\s*=\s*ON/i.test(s));
+    expect(walIdx).toBeGreaterThanOrEqual(0);
+    expect(fkIdx).toBeGreaterThan(walIdx); // WAL first, then foreign_keys
+
+    // Both pragmas must run BEFORE the migration transaction's DDL
+    // (the first CREATE TABLE). Regressions here reproduce the bug where
+    // `foreign_keys = ON` inside a transaction was silently ignored.
+    const firstCreateIdx = statements.findIndex((s) => /^\s*CREATE\s+TABLE/i.test(s));
+    expect(fkIdx).toBeLessThan(firstCreateIdx);
+  });
+
+  it('never nests transactions — each migration runs in exactly one', async () => {
+    // The migration runner passes its `Transaction` executor to up();
+    // migrations must not call `transaction()` themselves (SQLite
+    // forbids nested BEGIN). We assert structurally: the v1 migration
+    // receives an executor, and the fake DB sees no second BEGIN issued
+    // by migration code (op-sqlite would throw on a real device).
+    let transactionCalls = 0;
+    const originalTransaction = mockFakeDb.transaction.bind(mockFakeDb);
+    Object.defineProperty(mockFakeDb, 'transaction', {
+      value: async (fn: (tx: unknown) => Promise<void>) => {
+        transactionCalls += 1;
+        return originalTransaction(fn as never);
+      },
+      configurable: true,
+    });
+    try {
+      const result = await openDatabase();
+      expect(result.ok).toBe(true);
+      // Exactly one transaction for the single v1 migration.
+      expect(transactionCalls).toBe(1);
+    } finally {
+      Object.defineProperty(mockFakeDb, 'transaction', {
+        value: originalTransaction,
+        configurable: true,
+      });
+    }
+  });
+
+  it('records the schema version inside the migration transaction', async () => {
+    await openDatabase();
+    const statements = mockFakeDb.executedStatements;
+    // The INSERT INTO schema_version for v1 must come after all v1 DDL
+    // (it's part of the same transaction callback).
+    const lastCreateIdx = statements.reduce((last, s, i) => (/^\s*CREATE\s+TABLE/i.test(s) ? i : last), -1);
+    const insertIdx = statements.findIndex((s) => /^INSERT\s+INTO\s+schema_version/i.test(s));
+    expect(insertIdx).toBeGreaterThan(lastCreateIdx);
   });
 
   it('getDb() throws when the database has not been opened', () => {

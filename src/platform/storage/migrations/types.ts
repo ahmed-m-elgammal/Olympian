@@ -1,4 +1,17 @@
-import type { DB } from '@op-engineering/op-sqlite';
+import type { QueryResult, Scalar } from '@op-engineering/op-sqlite';
+
+/**
+ * Minimal SQL executor surface a migration may use.
+ *
+ * Deliberately NOT the full `DB` type: migrations receive either the
+ * connection's active `Transaction` (from the migration runner) — so a
+ * migration can never open its own nested `db.transaction()` (SQLite
+ * forbids nested `BEGIN`, and op-sqlite issues `BEGIN TRANSACTION;` per
+ * `transaction()` call).
+ */
+export interface MigrationExecutor {
+  execute(query: string, params?: Scalar[]): Promise<QueryResult>;
+}
 
 /**
  * A single forward-only schema migration.
@@ -16,9 +29,11 @@ export interface Migration {
    * Apply this migration. Should be idempotent (use `IF NOT EXISTS`) so
    * that re-runs on partially-migrated databases don't blow up.
    *
-   * Implementations should run their DDL inside a transaction for
-   * atomicity; the migration runner wraps each `up()` in its own
-   * transaction as well so partial failures roll back cleanly.
+   * The migration runner executes `up()` inside a single transaction and
+   * records the schema version in that SAME transaction — so each
+   * migration's DDL + version bump commit or roll back atomically.
+   * Implementations must NOT open their own transactions: just run
+   * statements against the passed executor.
    */
-  up: (db: DB) => Promise<void>;
+  up: (tx: MigrationExecutor) => Promise<void>;
 }

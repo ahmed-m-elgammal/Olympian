@@ -140,6 +140,11 @@ export class Particles {
   private activeCount = 0;
   /** Cursor for round-robin slot search (avoids O(n) scans). */
   private searchCursor = 0;
+  /** Last timestamp (ms) a pool-full warning was logged — throttles the
+   * debug log so a saturated pool doesn't spam it every emit attempt. */
+  private lastFullLogMs = 0;
+  /** Minimum interval (ms) between pool-full debug logs. */
+  private static readonly FULL_LOG_INTERVAL_MS = 1000;
 
   constructor(max: number = MAX_PARTICLES) {
     // Pre-allocate — no per-frame allocation.
@@ -177,7 +182,7 @@ export class Particles {
     }
     const slot = this.findDeadSlot();
     if (slot === null) {
-      logger.debug('Particles: pool full, emit dropped');
+      this.logPoolFullThrottled();
       return false;
     }
     slot.x = opts.position.x;
@@ -288,6 +293,17 @@ export class Particles {
       }
     }
     return null;
+  }
+
+  /** Log "pool full" at most once per second (avoid hot-loop spam). */
+  private logPoolFullThrottled(): void {
+    const nowMs = typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
+    if (nowMs - this.lastFullLogMs >= Particles.FULL_LOG_INTERVAL_MS) {
+      this.lastFullLogMs = nowMs;
+      logger.debug('Particles: pool full, emit dropped (throttled log)');
+    }
   }
 }
 

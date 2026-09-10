@@ -13,7 +13,7 @@
  *     leftover fractional accumulator for interpolation (handled by
  *     the renderer, not this loop).
  *
- * **Spiral-of-death protection:** if the accumulator exceeds 0.25s
+ * **Spiral-of-death protection:** if the accumulator exceeds 0.1s
  * (e.g. the device stalled, the JS thread was blocked, the debugger
  * was open), it is clamped — we accept losing some simulation time
  * rather than run an unbounded number of catch-up steps.
@@ -37,8 +37,12 @@ export interface World {
 /** Maximum number of catch-up steps to run in a single tick. */
 export const MAX_STEPS_PER_TICK = 5;
 
-/** Maximum accumulator before we drop the excess (seconds). */
-export const MAX_ACCUMULATOR_SEC = 0.25;
+/**
+ * Maximum accumulator before we drop the excess (seconds).
+ * Matches spec 07 §2's `MAX_DT = 1/10` frame-time clamp. Also coherent
+ * with the step cap: 5 × (1/60)s ≈ 83ms < 100ms.
+ */
+export const MAX_ACCUMULATOR_SEC = 0.1;
 
 /**
  * Fixed-timestep game loop.

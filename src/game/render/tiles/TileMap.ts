@@ -83,10 +83,21 @@ export interface TileMapData {
   name?: string;
 }
 
+/** Tiled flip-flag bits (high 3 bits of a global tile ID). */
+const FLIP_H_FLAG = 0x80000000;
+const FLIP_V_FLAG = 0x40000000;
+const FLIP_DIAG_FLAG = 0x20000000;
+/** Mask that strips the flip flags, leaving the pure GID. */
+const GID_MASK = 0x1fffffff;
+
 /** A resolved tile: where to draw it (world) + where to sample (tileset). */
 export interface Tile {
-  /** Global tile ID (matches Tiled). */
+  /** Global tile ID (matches Tiled, flip flags stripped). */
   tileId: number;
+  /** Tile X coordinate within the layer (column). */
+  tx: number;
+  /** Tile Y coordinate within the layer (row). */
+  ty: number;
   /** World X (top-left) in pixels. */
   x: number;
   /** World Y (top-left) in pixels. */
@@ -99,6 +110,12 @@ export interface Tile {
   srcWidth: number;
   /** Source height in pixels (== map's tileheight unless overridden). */
   srcHeight: number;
+  /** Tiled horizontal-flip flag (bit 0x80000000). */
+  flipX: boolean;
+  /** Tiled vertical-flip flag (bit 0x40000000). */
+  flipY: boolean;
+  /** Tiled diagonal-flip flag (bit 0x20000000) — a 90° transpose. */
+  flipDiag: boolean;
   /** The tileset that owns this tile. */
   tileset: TileSetRef;
 }
@@ -115,6 +132,12 @@ export interface Layer {
   visible: boolean;
   /** All non-empty tiles in this layer (in render order). */
   tiles: Tile[];
+  /**
+   * O(1) tile lookup: maps `ty * width + tx` to its tile. Built at parse
+   * time — `getTileAt` must not linearly scan `tiles` (that's O(n) per
+   * lookup, fatal for collision queries in a 60Hz loop).
+   */
+  tileIndex: Map<number, Tile>;
 }
 
 /**
@@ -196,6 +219,7 @@ export class TileMap {
 
   /**
    * Get the tile at the given tile-coordinate in the given layer.
+   * O(1) via the per-layer hash index built at parse time.
    *
    * @param layerIndex 0-based layer index.
    * @param x          Tile X coordinate.
@@ -206,7 +230,7 @@ export class TileMap {
     const layer = this.getLayerByIndex(layerIndex);
     if (!layer) return null;
     if (x < 0 || y < 0 || x >= layer.width || y >= layer.height) return null;
-    return layer.tiles.find((t) => t.x === x * this.data.tilewidth && t.y === y * this.data.tileheight) ?? null;
+    return layer.tileIndex.get(y * layer.width + x) ?? null;
   }
 
   /**
@@ -218,11 +242,9 @@ export class TileMap {
   iterateTiles(
     callback: (tile: Tile, layer: Layer, x: number, y: number) => void,
   ): void {
-    const tw = this.data.tilewidth;
-    const th = this.data.tileheight;
     for (const layer of this.layers) {
       for (const tile of layer.tiles) {
-        callback(tile, layer, Math.floor(tile.x / tw), Math.floor(tile.y / th));
+        callback(tile, layer, tile.tx, tile.ty);
       }
     }
   }
@@ -233,7 +255,8 @@ export class TileMap {
 
   /**
    * Parse one Tiled layer (either `data: number[]` form or sparse
-   * `tiles: [...]` form) into a flat list of resolved {@link Tile}s.
+   * `tiles: [...]` form) into a flat list of resolved {@link Tile}s,
+   * plus an O(1) lookup index keyed by `ty * width + tx`.
    */
   private parseLayer(layer: TileLayerData): Layer {
     const width = layer.width ?? this.data.width;
@@ -242,13 +265,22 @@ export class TileMap {
     const tw = this.data.tilewidth;
     const th = this.data.tileheight;
     const tiles: Tile[] = [];
+    const tileIndex = new Map<number, Tile>();
+
+    const pushTile = (tileId: number, tx: number, ty: number): void => {
+      const resolved = this.resolveTile(tileId, tx, ty, tw, th);
+      if (resolved) {
+        tiles.push(resolved);
+        tileIndex.set(ty * width + tx, resolved);
+      }
+    };
 
     if (Array.isArray(layer.tiles)) {
       // Sparse form.
       for (const t of layer.tiles) {
         if (!t || t.tileId === 0) continue;
-        const resolved = this.resolveTile(t.tileId, t.x * tw, t.y * th, tw, th);
-        if (resolved) tiles.push(resolved);
+        if (t.x < 0 || t.y < 0 || t.x >= width || t.y >= height) continue;
+        pushTile(t.tileId, t.x, t.y);
       }
     } else if (Array.isArray(layer.data)) {
       // Flattened row-major form.
@@ -264,30 +296,39 @@ export class TileMap {
         const tx = i % width;
         const ty = Math.floor(i / width);
         if (tx >= width || ty >= height) continue;
-        const resolved = this.resolveTile(tileId, tx * tw, ty * th, tw, th);
-        if (resolved) tiles.push(resolved);
+        pushTile(tileId, tx, ty);
       }
     } else {
       logger.warn(`TileMap: layer "${layer.name}" has neither data[] nor tiles[]`);
     }
 
-    return { name: layer.name, width, height, visible, tiles };
+    return { name: layer.name, width, height, visible, tiles, tileIndex };
   }
 
   /**
    * Resolve a global tile ID against the right tileset and compute
    * its source rect. Returns `null` if no tileset owns the ID.
+   *
+   * Tiled encodes per-tile flips in the high bits of the GID:
+   *   0x80000000 horizontal, 0x40000000 vertical, 0x20000000 diagonal.
+   * The flags are stripped for tileset lookup and exposed on the tile so
+   * the renderer can draw the flipped orientation.
    */
   private resolveTile(
-    globalTileId: number,
-    worldX: number,
-    worldY: number,
+    rawGlobalTileId: number,
+    tx: number,
+    ty: number,
     tw: number,
     th: number,
   ): Tile | null {
-    // Strip Tiled flip flags (high 3 bits).
     // eslint-disable-next-line no-bitwise
-    const gid = globalTileId & 0x1fffffff;
+    const flipX = (rawGlobalTileId & FLIP_H_FLAG) !== 0;
+    // eslint-disable-next-line no-bitwise
+    const flipY = (rawGlobalTileId & FLIP_V_FLAG) !== 0;
+    // eslint-disable-next-line no-bitwise
+    const flipDiag = (rawGlobalTileId & FLIP_DIAG_FLAG) !== 0;
+    // eslint-disable-next-line no-bitwise
+    const gid = rawGlobalTileId & GID_MASK;
     if (gid === 0) return null;
 
     // Find the tileset whose [firstgid, nextFirstgid) range contains gid.
@@ -307,23 +348,44 @@ export class TileMap {
 
     const localId = gid - tileset.firstgid;
     const imageWidth = tileset.imagewidth ?? 0;
+    const imageHeight = tileset.imageheight ?? 0;
     const tileWidth = tileset.tilewidth || tw;
     const tileHeight = tileset.tileheight || th;
     const cols =
       imageWidth > 0 && tileWidth > 0
         ? Math.floor(imageWidth / tileWidth)
         : 1;
+
+    // Bound the lookup by the tileset image's actual capacity. The last
+    // tileset's gid range is unbounded (no `next` firstgid), so without
+    // this check a garbage gid would "resolve" to a src rect outside the
+    // image and draw nonsense.
+    if (imageWidth > 0 && imageHeight > 0 && tileWidth > 0 && tileHeight > 0) {
+      const capacity = cols * Math.floor(imageHeight / tileHeight);
+      if (localId >= capacity) {
+        logger.warn(
+          `TileMap: gid ${gid} is outside tileset "${tileset.name ?? '?'}" capacity (${capacity} tiles)`,
+        );
+        return null;
+      }
+    }
+
     const srcX = (localId % cols) * tileWidth;
     const srcY = Math.floor(localId / cols) * tileHeight;
 
     return {
       tileId: gid,
-      x: worldX,
-      y: worldY,
+      tx,
+      ty,
+      x: tx * tw,
+      y: ty * th,
       srcX,
       srcY,
       srcWidth: tileWidth,
       srcHeight: tileHeight,
+      flipX,
+      flipY,
+      flipDiag,
       tileset,
     };
   }

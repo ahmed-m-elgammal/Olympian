@@ -94,15 +94,15 @@ export function getActiveSaveId(): string | null {
 
 /** Persist the active save slot id to MMKV. */
 export function setActiveSaveId(id: string | null): void {
-  if (id === null) {
-    try {
+  try {
+    if (id === null) {
       mmkv.delete(ACTIVE_SAVE_KEY);
-    } catch {
-      /* ignore */
+    } else {
+      mmkv.set(ACTIVE_SAVE_KEY, id);
     }
-    return;
+  } catch (e) {
+    logger.warn(`[mmkv] setActiveSaveId(${id}) failed`, e);
   }
-  mmkv.set(ACTIVE_SAVE_KEY, id);
 }
 
 /**
