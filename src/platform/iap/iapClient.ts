@@ -21,9 +21,9 @@
 
 import {
   endConnection,
+  fetchProducts as fetchProductsNative,
   finishTransaction,
   getAvailablePurchases,
-  getProducts,
   initConnection,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -155,8 +155,10 @@ export async function fetchProducts(
   }
 
   try {
-    const products = await getProducts({ skus: [...productIds] });
-    return ok(products);
+    const products = await fetchProductsNative({ skus: [...productIds], type: 'in-app' });
+    // The library shares one return type across product and subscription
+    // queries; this wrapper only requests regular in-app products.
+    return ok((products ?? []) as Product[]);
   } catch (e) {
     const error = e instanceof Error ? e : new Error(String(e));
     logger.warn('[iap] fetchProducts failed', error);
@@ -192,10 +194,15 @@ export async function purchaseProduct(
   }
 
   try {
-    // requestPurchase accepts a per-platform request object. Using the
-    // iOS-style single-sku shape is accepted by Android as well via the
-    // library's normalization layer.
-    const result = await requestPurchase({ sku: productId });
+    // The current IAP API requires platform-specific request data. Supplying
+    // both platforms keeps this wrapper usable on Android and iOS.
+    const result = await requestPurchase({
+      request: {
+        apple: { sku: productId },
+        google: { skus: [productId] },
+      },
+      type: 'in-app',
+    });
     return ok(result);
   } catch (e) {
     const error = e instanceof Error ? e : new Error(String(e));

@@ -85,7 +85,7 @@ jest.mock('react-native-mmkv', () => {
 interface MockIapState {
   connected: boolean;
   products: Array<{
-    productId: string;
+    id: string;
     title: string;
     description: string;
     price: string;
@@ -108,7 +108,7 @@ interface MockIapState {
 const mockState: MockIapState = {
   connected: false,
   products: PLACEHOLDER_PRODUCTS.map((p) => ({
-    productId: p.id,
+    id: p.id,
     title: `Mock ${p.id}`,
     description: 'Mock product',
     price: `$${p.defaultPriceUSD.toFixed(2)}`,
@@ -136,13 +136,13 @@ jest.mock('react-native-iap', () => {
       mockState.connected = false;
       return true;
     },
-    getProducts: async ({
+    fetchProducts: async ({
       skus,
     }: {
       skus: string[];
     }): Promise<
       Array<{
-        productId: string;
+        id: string;
         title: string;
         description: string;
         price: string;
@@ -152,9 +152,9 @@ jest.mock('react-native-iap', () => {
       }>
     > => {
       if (mockState.fetchProductsShouldThrow) {
-        throw new Error('mock getProducts failure');
+        throw new Error('mock fetchProducts failure');
       }
-      return mockState.products.filter((p) => skus.includes(p.productId));
+      return mockState.products.filter((p) => skus.includes(p.id));
     },
     getAvailablePurchases: async (): Promise<
       Array<{
@@ -166,12 +166,19 @@ jest.mock('react-native-iap', () => {
     > => {
       return mockState.availablePurchases;
     },
-    requestPurchase: async (_req: { sku: string }): Promise<unknown> => {
+    requestPurchase: async (_req: {
+      request: {
+        apple?: { sku: string };
+        google?: { skus: string[] };
+      };
+      type: 'in-app';
+    }): Promise<unknown> => {
       if (mockState.purchaseShouldThrow) {
         throw new Error('mock requestPurchase failure');
       }
+      const productId = _req.request.google?.skus[0] ?? _req.request.apple?.sku ?? '';
       const purchase = {
-        productId: _req.sku,
+        productId,
         transactionId: `tx_${Date.now()}`,
         transactionDate: Date.now(),
         transactionReceipt: 'mock-receipt',
@@ -251,7 +258,7 @@ describe('IAP client (spec 13 §4)', () => {
       if (result.ok) {
         expect(result.value.length).toBe(DEFAULT_PRODUCT_IDS.length);
         for (const id of DEFAULT_PRODUCT_IDS) {
-          expect(result.value.some((p) => p.productId === id)).toBe(true);
+          expect(result.value.some((p) => p.id === id)).toBe(true);
         }
       }
     });
@@ -261,11 +268,11 @@ describe('IAP client (spec 13 §4)', () => {
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.value.length).toBe(1);
-        expect(result.value[0]!.productId).toBe(DEFAULT_PRODUCT_IDS[0]);
+        expect(result.value[0]!.id).toBe(DEFAULT_PRODUCT_IDS[0]);
       }
     });
 
-    it('returns ok([]) (graceful) when getProducts throws', async () => {
+    it('returns ok([]) (graceful) when fetchProducts throws', async () => {
       mockState.fetchProductsShouldThrow = true;
       const result = await fetchProducts();
       expect(result.ok).toBe(true);

@@ -82,6 +82,10 @@ android {
         applicationId "com.olympian.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        // react-native-iap publishes separate Amazon and Play variants. The
+        // app targets Google Play, so select that library variant explicitly
+        // while keeping the normal installDebug task name.
+        missingDimensionStrategy "store", "play"
         versionCode 1
         versionName "1.0"
     }
