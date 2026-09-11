@@ -10,7 +10,19 @@ try {
   // module-level mock below would then be required instead.
 }
 
-// 1) Set up Reanimated test environment (must run before module imports).
+// 1) Use a JS-only Reanimated mock in Jest. Native JSI animation runtimes are
+//    unavailable in Node, while the real package is still used by Metro.
+jest.mock('react-native-reanimated', () =>
+  require('./test-mocks/react-native-reanimated'),
+);
+
+// Reanimated 4 delegates its JS runtime to react-native-worklets. Use the
+// package's Jest implementation so tests do not initialize the native JSI
+// Worklets module.
+jest.mock('react-native-worklets', () =>
+  require('react-native-worklets/lib/module/mock'),
+);
+
 try {
   require('react-native-reanimated').setUpTests();
 } catch (e) {
