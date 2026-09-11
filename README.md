@@ -1,97 +1,119 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Olympian
 
-# Getting Started
+**Mobile-first Greek-mythology action-RPG + puzzle game.**
+React Native (bare) · TypeScript strict · Skia-rendered pixel art · local-only
+data · EN/AR (RTL) · 100 levels.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+> Current status: **Phase 2 — Vertical Slice**. The hero, movement, the Act 1
+> overworld, the first playable room, marker interactions, and scene
+> transitions are implemented and covered by the test suite below.
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Requirements
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+| Tool | Version | Needed for |
+|---|---|---|
+| Node.js | ≥ 22.11 | everything (tests, tooling, Metro) |
+| npm | ≥ 10 | everything |
+| Xcode + CocoaPods (macOS) | Xcode 16+ | iOS simulator / device |
+| Android Studio | incl. SDK 35 + emulator | Android emulator / device |
 
-```sh
-# Using npm
-npm start
+You do **not** need Xcode or Android Studio to run the QA pipeline — only to
+see the game running on a screen.
 
-# OR using Yarn
-yarn start
-```
+---
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 1. Run the QA pipeline (no simulator required)
 
 ```sh
-bundle install
+npm install
+
+npm run typecheck   # tsc --noEmit (strict)
+npm run lint        # eslint
+npm test            # jest — 28 suites / 374 tests
+npm run prebuild    # bake sprite atlases + build DB + validate content + i18n coverage
+
+# or everything at once:
+npm run ci          # lint && typecheck && test && prebuild
 ```
 
-Then, and every time you update your native dependencies, run:
+`npm run prebuild` regenerates everything under `assets/` from the
+deterministic generators in `scripts/` — never edit files in `assets/` by
+hand.
+
+### See the pixel art without a simulator
 
 ```sh
-bundle exec pod install
+npx ts-node --project tsconfig.scripts.json scripts/generate-sprites.ts   # hero strip, tiles, all map renders
+npx ts-node --project tsconfig.scripts.json scripts/preview-sprites.ts    # labelled hero animation grid
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Output lands in `scripts/preview/` (gitignored): `hero_grid.png`,
+`hero_preview.png`, `tiles_row.png`, `map_demo_glade.png`,
+`map_act1_overworld.png`, `map_act1_room.png`.
+
+---
+
+## 2. Run the game (see the real UI)
+
+### Android (emulator or USB device)
 
 ```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+# 1. Start an emulator from Android Studio (Device Manager) or plug in a device
+# 2. Then:
+npm start           # keep Metro running
+npm run android     # in a second terminal — builds & installs the debug app
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### iOS (simulator or device, macOS only)
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```sh
+bundle install                       # first time only (installs CocoaPods)
+bundle exec pod install              # first time or after native dependency changes
+npm start                            # keep Metro running
+npm run ios                          # in a second terminal — builds & boots the simulator
+```
 
-## Step 3: Modify your app
+You can also open `android/` in Android Studio or `ios/Olympian.xcworkspace`
+in Xcode and press **Run** — Metro still needs to be running (`npm start`).
 
-Now that you have successfully run the app, let's make changes!
+### What you should see
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+1. **Boot gate → Title screen** with theme-aware branding.
+2. **Language picker** — English or Arabic (the whole UI mirrors for RTL).
+3. **Hub → Overworld** — the Act 1 overworld map; move the hero with the
+   on-screen joystick (touch) or arrow keys / WASD in the simulator.
+4. Walk onto a **marker** to get an interaction prompt and transition into
+   the first playable room (vertical slice level).
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+---
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## 3. Project layout
 
-## Congratulations! :tada:
+```
+src/
+  app/        # App shell, providers, root navigator
+  ui/         # Design tokens, primitives, composed components, screens
+  game/       # ECS engine, systems, scenes, render (Skia), entities
+  platform/   # MMKV, SQLite, audio, IAP, haptics, locale bridges
+  data/       # Zustand stores, render bus, input store
+  i18n/       # i18next setup, EN/AR resources, RTL mirroring
+scripts/      # Asset generators (sprites, tilemaps, DB, validators)
+assets/       # Baked output — regenerable, do not edit
+spec/         # Authoritative specification kit (start at spec/tasks.md)
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+`spec/tasks.md` is the single source of truth for what is built and what is
+next. Phase/status tracking lives there.
 
-### Now what?
+---
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## Troubleshooting
 
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- **Metro port busy** → `npx react-native start --reset-cache --port 8082` and
+  reload the app.
+- **iOS build fails after pulling** → re-run `bundle exec pod install`.
+- **Stale sprites in game** → `npm run prebuild` then reload Metro
+  (`r` in the Metro terminal).
+- **Clear Android debug state** → `cd android && ./gradlew clean`.
