@@ -258,7 +258,7 @@ export function getActManifest(actNumber: number): ActAudioManifest {
  * Preload all SFX and music assets required for the given Act.
  *
  *  - SFX: preloaded into the pool, 3 instances each (spec 11 §5.2).
- *  - Music: TrackPlayer streams on demand; we call MusicPlayer.preload()
+ *  - Music: music files stream on demand; we call MusicPlayer.preload()
  *    for API symmetry but it is currently a no-op.
  *  - Ambience: preloaded into the AmbienceLayer; beds start looping only
  *    when `ambienceLayer.play(bedId, file)` is explicitly called from
@@ -293,7 +293,7 @@ export async function preloadAudioForAct(actNumber: number): Promise<void> {
     await Promise.all(tasks);
   }
 
-  // Music: TrackPlayer streams on demand; preload() is a no-op today.
+  // Music: streams on demand via react-native-sound; preload() is a no-op today.
   if (manifest.music && manifest.music.length > 0) {
     const tracks = manifest.music.map((id) => ({
       id,

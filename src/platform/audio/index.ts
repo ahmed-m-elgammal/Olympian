@@ -48,7 +48,7 @@ let initialized = false;
 
 /**
  * Initialize the audio layer. Loads persisted volumes from MMKV, wires the
- * mixer's subscribers to the sub-systems, and initializes TrackPlayer.
+ * mixer's subscribers to the sub-systems, and initializes music playback.
  *
  * Safe to call multiple times — subsequent calls are no-ops.
  */
@@ -86,7 +86,7 @@ export async function initAudio(): Promise<void> {
     sfxPool.setGroupVolume(mixer.getEffectiveVolume('sfx'));
     ambienceLayer.setMasterVolume(mixer.getEffectiveVolume('ambience'));
 
-    // Initialize TrackPlayer (no-op if already set up).
+    // Initialize music playback (no-op if already set up).
     await musicPlayer.init();
 
     logger.info('[audio] init complete', {
